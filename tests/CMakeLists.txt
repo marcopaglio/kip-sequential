@@ -10,6 +10,7 @@ set(TEST_SOURCES
         PixelTest.cpp
         KernelTest.cpp
         ImageTest.cpp
+        STBImageReaderTest.cpp
 )
 
 add_executable(kip_sequential_runTests ${TEST_SOURCES})
