@@ -8,6 +8,8 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 add_library(kip_sequential_lib
         src/Pixel.cpp
         src/Pixel.h
+        src/Image.cpp
+        src/Image.h
         src/Kernel.cpp
         src/Kernel.h
 )
