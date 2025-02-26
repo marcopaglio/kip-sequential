@@ -1,3 +1,16 @@
+### Project-specific ###
+# Output imgs
+**/imgs/output/*
+
+# Profiler dir
+/profiler_kip_sequential
+
+
+### CMake ###
+cmake-build-*/
+
+
+### C++ ###
 # Prerequisites
 *.d
 
