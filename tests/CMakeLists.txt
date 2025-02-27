@@ -11,10 +11,11 @@ set(TEST_SOURCES
         KernelTest.cpp
         ImageTest.cpp
         STBImageReaderTest.cpp
+        ImageProcessingTest.cpp
 )
 
 add_executable(kip_sequential_runTests ${TEST_SOURCES})
 
-target_link_libraries(kip_sequential_runTests kip_sequential_lib gtest_main)
+target_link_libraries(kip_sequential_runTests kip_sequential_lib gtest_main gmock_main)
 
 add_test(NAME runTests COMMAND runTests)
