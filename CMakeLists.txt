@@ -20,7 +20,17 @@ add_library(kip_sequential_lib
         src/ImageProcessing.h
         src/KernelFactory.cpp
         src/KernelFactory.h
+        src/Timer.cpp
+        src/Timer.h
+        src/HighResolutionTimer.cpp
+        src/HighResolutionTimer.h
+        src/SteadyTimer.cpp
+        src/SteadyTimer.h
 )
+
+add_executable(kip_sequential_main src/main.cpp)
+
+target_link_libraries(kip_sequential_main kip_sequential_lib)
 
 add_compile_definitions(PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
 
