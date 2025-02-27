@@ -1,7 +1,4 @@
 ### Project-specific ###
-# Output imgs
-**/imgs/output/*
-
 # Profiler dir
 /profiler_kip_sequential
 
