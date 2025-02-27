@@ -18,6 +18,8 @@ add_library(kip_sequential_lib
         src/STBImageReader.h
         src/ImageProcessing.cpp
         src/ImageProcessing.h
+        src/KernelFactory.cpp
+        src/KernelFactory.h
 )
 
 add_compile_definitions(PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
