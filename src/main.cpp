@@ -18,12 +18,14 @@ int main() {
         timer = std::make_unique<SteadyTimer>();
 
     try {
-        const std::string imageName = "tuscany";
+        constexpr unsigned int imageQuality = 4;
+        constexpr unsigned int imageNum = 1;
+        const std::string imageName = std::to_string(imageQuality) + "K-" + std::to_string(imageNum);
         std::stringstream fullPathStream;
         STBImageReader imageReader{};
 
         // load img
-        fullPathStream << PROJECT_SOURCE_DIR << "/imgs/input/" << imageName << ".jpg";
+        fullPathStream << PROJECT_SOURCE_DIR << "/src/imgs/input/" << imageName << ".jpg";
         const auto img = imageReader.loadRGBImage(fullPathStream.str());
         std::cout << "Image " << img->getWidth() << "x" << img->getHeight() <<
             " loaded from: " << fullPathStream.str() << std::endl;
@@ -44,7 +46,7 @@ int main() {
         std::cout << "Finished in " << wall_clock_time_duration.count() << " seconds [Wall Clock]" << std::endl;
 
         // save
-        fullPathStream << PROJECT_SOURCE_DIR << "/imgs/output/" << imageName <<
+        fullPathStream << PROJECT_SOURCE_DIR << "/src/imgs/output/" << imageName <<
             "_" << kernel->getName() << kernel->getOrder() << ".jpg";
         imageReader.saveJPGImage(*outputImage, fullPathStream.str());
         std::cout << "Image " << outputImage->getWidth() << "x" << outputImage->getHeight() <<
