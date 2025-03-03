@@ -10,6 +10,9 @@
 #include "SteadyTimer.h"
 #include "Timer.h"
 
+#define NUM_KERNELS 2
+#define NUM_REPS 3
+
 int main() {
     std::unique_ptr<Timer> timer;
     if constexpr (std::chrono::high_resolution_clock::is_steady)
@@ -31,27 +34,44 @@ int main() {
             " loaded from: " << fullPathStream.str() << std::endl;
         fullPathStream.str(std::string());
 
-        // create kernel
-        constexpr unsigned int order = 7;
-        //const auto kernel = KernelFactory::createBlurKernel(order);
-        const auto kernel = KernelFactory::createEdgeDetectionKernel(order);
+        for (unsigned int kernelType = 0; kernelType < NUM_KERNELS; kernelType++) {
+            // create kernel
+            constexpr unsigned int order = 7;
+            std::unique_ptr<Kernel> kernel;
+            switch (kernelType) {
+                case 0:
+                    kernel = KernelFactory::createBlurKernel(order);
+                    break;
+                case 1:
+                    kernel = KernelFactory::createEdgeDetectionKernel(order);
+                    break;
+                default:
+                    throw std::invalid_argument("Invalid kernel type");
+            }
+            std::cout << "Kernel of type \"" << kernel->getName() << "\" and size " << kernel->getOrder() <<
+                " created." << std::endl;
 
-        // transform
-        const std::chrono::duration<double> wall_clock_time_start = timer->now();
-        const std::unique_ptr<Image> outputImage = ImageProcessing::convolution(
-                *ImageProcessing::extendEdge(*img, (order - 1) / 2),
-                *kernel);
-        const std::chrono::duration<double> wall_clock_time_end = timer->now();
-        const std::chrono::duration<double> wall_clock_time_duration = wall_clock_time_end - wall_clock_time_start;
-        std::cout << "Finished in " << wall_clock_time_duration.count() << " seconds [Wall Clock]" << std::endl;
+            // transform
+            const std::chrono::duration<double> wall_clock_time_start = timer->now();
+            std::unique_ptr<Image> outputImage;
+            for (unsigned int rep = 0; rep < NUM_REPS; rep++) {
+                outputImage = ImageProcessing::convolution(
+                    *ImageProcessing::extendEdge(*img, (order - 1) / 2),
+                    *kernel);
+            }
+            const std::chrono::duration<double> wall_clock_time_end = timer->now();
+            const std::chrono::duration<double> wall_clock_time_duration = wall_clock_time_end - wall_clock_time_start;
+            std::cout << "Image processed " << NUM_REPS << " times in " << wall_clock_time_duration.count() << " seconds [Wall Clock]" <<
+                " with an average of " << wall_clock_time_duration.count() / NUM_REPS << " seconds per repetition." << std::endl;
 
-        // save
-        fullPathStream << PROJECT_SOURCE_DIR << "/src/imgs/output/" << imageName <<
-            "_" << kernel->getName() << kernel->getOrder() << ".jpg";
-        imageReader.saveJPGImage(*outputImage, fullPathStream.str());
-        std::cout << "Image " << outputImage->getWidth() << "x" << outputImage->getHeight() <<
-            " saved at: " << fullPathStream.str() << std::endl;
-        fullPathStream.str(std::string());
+            // save
+            fullPathStream << PROJECT_SOURCE_DIR << "/src/imgs/output/" << imageName <<
+                "_" << kernel->getName() << kernel->getOrder() << ".jpg";
+            imageReader.saveJPGImage(*outputImage, fullPathStream.str());
+            std::cout << "Image " << outputImage->getWidth() << "x" << outputImage->getHeight() <<
+                " saved at: " << fullPathStream.str() << std::endl << std::endl;
+            fullPathStream.str(std::string());
+        }
 
     } catch (const std::exception& ex) {
         std::cerr << ex.what() << std::endl;
