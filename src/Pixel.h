@@ -5,15 +5,15 @@
 
 class Pixel final {
 public:
-    explicit Pixel(uint8_t r=0, uint8_t g=0, uint8_t b=0);
+    explicit Pixel(int r=0, int g=0, int b=0);
     ~Pixel();
 
-    [[nodiscard]] uint8_t getR() const;
-    [[nodiscard]] uint8_t getG() const;
-    [[nodiscard]] uint8_t getB() const;
+    [[nodiscard]] int getR() const;
+    [[nodiscard]] int getG() const;
+    [[nodiscard]] int getB() const;
 
 private:
-    uint8_t r, g, b;
+    int r, g, b;
 };
 
 

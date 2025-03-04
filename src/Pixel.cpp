@@ -1,17 +1,17 @@
 #include "Pixel.h"
 
-Pixel::Pixel(const uint8_t r, const uint8_t g, const uint8_t b): r(r), g(g), b(b) {}
+Pixel::Pixel(const int r, const int g, const int b): r(r), g(g), b(b) {}
 
 Pixel::~Pixel() = default;
 
-uint8_t Pixel::getR() const {
+int Pixel::getR() const {
     return r;
 }
 
-uint8_t Pixel::getG() const {
+int Pixel::getG() const {
     return g;
 }
 
-uint8_t Pixel::getB() const {
+int Pixel::getB() const {
     return b;
 }

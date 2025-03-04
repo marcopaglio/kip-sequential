@@ -3,9 +3,9 @@
 
 
 TEST(PixelTest, testConstructor) {
-    constexpr uint8_t r = 13;
-    constexpr uint8_t g  = 28;
-    constexpr uint8_t b = 234;
+    constexpr int r = 13;
+    constexpr int g  = 28;
+    constexpr int b = 234;
 
     const Pixel pixel(r, g, b);
 

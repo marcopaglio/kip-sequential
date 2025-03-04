@@ -3,12 +3,12 @@
 #define MIN_VALUE 0
 #define MAX_VALUE 255
 
-uint8_t getChannelAsUint8(const int channel) {
+int getChannelInRange(const int channel) {
     if (channel < MIN_VALUE)
         return MIN_VALUE;
     if (channel > MAX_VALUE)
         return MAX_VALUE;
-    return static_cast<uint8_t>(channel);
+    return channel;
 }
 
 std::unique_ptr<Image> ImageProcessing::convolution(const Image &image, const Kernel &kernel) {
@@ -35,14 +35,14 @@ std::unique_ptr<Image> ImageProcessing::convolution(const Image &image, const Ke
                 for (unsigned int i = 0; i < order; i++) {
                     Pixel originalPixel = originalData[y + j][x + i];
                     const int kernelWeight = kernelWeights[j * order + i];
-                    channelRed += static_cast<int>(originalPixel.getR()) * kernelWeight;
-                    channelGreen += static_cast<int>(originalPixel.getG()) * kernelWeight;
-                    channelBlue += static_cast<int>(originalPixel.getB()) * kernelWeight;
+                    channelRed += originalPixel.getR() * kernelWeight;
+                    channelGreen += originalPixel.getG() * kernelWeight;
+                    channelBlue += originalPixel.getB() * kernelWeight;
                 }
             }
-            pixels[y][x] = Pixel(getChannelAsUint8(channelRed/normFactor),
-                getChannelAsUint8(channelGreen/normFactor),
-                getChannelAsUint8(channelBlue/normFactor));
+            pixels[y][x] = Pixel(getChannelInRange(channelRed/normFactor),
+                getChannelInRange(channelGreen/normFactor),
+                getChannelInRange(channelBlue/normFactor));
         }
     }
 

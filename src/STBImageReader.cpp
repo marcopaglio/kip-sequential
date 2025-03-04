@@ -37,7 +37,7 @@ void STBImageReader::saveJPGImage(const Image &img, const std::filesystem::path 
     const unsigned int width = img.getWidth();
     const unsigned int height = img.getHeight();
 
-    std::vector<uint8_t> flatData(width * height * RGB_CHANNELS);
+    std::vector<int> flatData(width * height * RGB_CHANNELS);
 
     // retrieve data
     const auto pixels = img.getData();

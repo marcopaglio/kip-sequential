@@ -55,9 +55,9 @@ TEST_F(ImageProcessingTest, testConvolutionWhenValuesAreInRange) {
                                                                   1, 4, 1   }, normFactor);
     constexpr unsigned int heightConvoluted = 1;
     constexpr unsigned int widthConvoluted = 3;
-    constexpr std::array<uint8_t, widthConvoluted> redsConvoluted = {39, 76, 80};
-    constexpr std::array<uint8_t, widthConvoluted> greensConvoluted = {56, 37, 74};
-    constexpr std::array<uint8_t, widthConvoluted> bluesConvoluted = {117, 69, 134};
+    constexpr std::array<int, widthConvoluted> redsConvoluted = {39, 76, 80};
+    constexpr std::array<int, widthConvoluted> greensConvoluted = {56, 37, 74};
+    constexpr std::array<int, widthConvoluted> bluesConvoluted = {117, 69, 134};
 
     const std::unique_ptr<Image> imageProcessed = ImageProcessing::convolution(*imageToProcess, kernel);
 
@@ -74,9 +74,9 @@ TEST_F(ImageProcessingTest, testConvolutionWhenValuesAreInRange) {
 
 TEST_F(ImageProcessingTest, testConvolutionWhenValuesAreNegative) {
     // image must contain at least one not-zero element for each channel
-    std::vector<uint8_t> reds;
-    std::vector<uint8_t> greens;
-    std::vector<uint8_t> blues;
+    std::vector<int> reds;
+    std::vector<int> greens;
+    std::vector<int> blues;
     for (auto row : imageToProcess->getData()) {
         std::transform(row.begin(), row.end(), std::back_inserter(reds), [](const Pixel& pixel){return pixel.getR();});
         std::transform(row.begin(), row.end(), std::back_inserter(greens), [](const Pixel& pixel){return pixel.getG();});
@@ -102,9 +102,9 @@ TEST_F(ImageProcessingTest, testConvolutionWhenValuesAreNegative) {
 
 TEST_F(ImageProcessingTest, testConvolutionWhenValuesAreOutOfRange) {
     // image must contain at least one not-zero element for each channel
-    std::vector<uint8_t> reds;
-    std::vector<uint8_t> greens;
-    std::vector<uint8_t> blues;
+    std::vector<int> reds;
+    std::vector<int> greens;
+    std::vector<int> blues;
     for (auto row : imageToProcess->getData()) {
         std::transform(row.begin(), row.end(), std::back_inserter(reds), [](const Pixel& pixel){return pixel.getR();});
         std::transform(row.begin(), row.end(), std::back_inserter(greens), [](const Pixel& pixel){return pixel.getG();});
