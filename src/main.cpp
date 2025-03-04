@@ -29,14 +29,18 @@ int main() {
 
         // load img
         fullPathStream << PROJECT_SOURCE_DIR << "/src/imgs/input/" << imageName << ".jpg";
-        const auto img = imageReader.loadRGBImage(fullPathStream.str());
+        auto img = imageReader.loadRGBImage(fullPathStream.str());
         std::cout << "Image " << img->getWidth() << "x" << img->getHeight() <<
             " loaded from: " << fullPathStream.str() << std::endl;
         fullPathStream.str(std::string());
 
+        // enlargement
+        constexpr unsigned int order = 7;
+        img = ImageProcessing::extendEdge(*img, (order - 1) / 2);
+        std::cout << "Image enlarged to " << img->getWidth() << "x" << img->getHeight() << std::endl;
+
         for (unsigned int kernelType = 0; kernelType < NUM_KERNELS; kernelType++) {
             // create kernel
-            constexpr unsigned int order = 7;
             std::unique_ptr<Kernel> kernel;
             switch (kernelType) {
                 case 0:
@@ -54,11 +58,8 @@ int main() {
             // transform
             const std::chrono::duration<double> wall_clock_time_start = timer->now();
             std::unique_ptr<Image> outputImage;
-            for (unsigned int rep = 0; rep < NUM_REPS; rep++) {
-                outputImage = ImageProcessing::convolution(
-                    *ImageProcessing::extendEdge(*img, (order - 1) / 2),
-                    *kernel);
-            }
+            for (unsigned int rep = 0; rep < NUM_REPS; rep++)
+                outputImage = ImageProcessing::convolution(*img, *kernel);
             const std::chrono::duration<double> wall_clock_time_end = timer->now();
             const std::chrono::duration<double> wall_clock_time_duration = wall_clock_time_end - wall_clock_time_start;
             std::cout << "Image processed " << NUM_REPS << " times in " << wall_clock_time_duration.count() << " seconds [Wall Clock]" <<
