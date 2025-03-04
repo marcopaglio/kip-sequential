@@ -1,2 +1,2 @@
-# kip-sequential
-Sequential version of Kernel Image Processing.
+# :warning: Attention, please! :warning:
+Changes in this branch don't bring any improvement, but it remains for documentation.
