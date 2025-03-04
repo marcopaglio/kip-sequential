@@ -40,7 +40,7 @@ int main() {
             std::unique_ptr<Kernel> kernel;
             switch (kernelType) {
                 case 0:
-                    kernel = KernelFactory::createBlurKernel(order);
+                    kernel = KernelFactory::createBoxBlurKernel(order);
                     break;
                 case 1:
                     kernel = KernelFactory::createEdgeDetectionKernel(order);

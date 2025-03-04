@@ -10,7 +10,7 @@ public:
     KernelFactory() = delete;
     ~KernelFactory() = delete;
 
-    static std::unique_ptr<Kernel> createBlurKernel(unsigned int order);
+    static std::unique_ptr<Kernel> createBoxBlurKernel(unsigned int order);
     static std::unique_ptr<Kernel> createEdgeDetectionKernel(unsigned int order);
 };
 

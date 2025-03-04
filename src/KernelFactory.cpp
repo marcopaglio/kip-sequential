@@ -10,13 +10,13 @@ std::unique_ptr<Kernel> createKernel(const std::string& name, unsigned int order
     return std::make_unique<Kernel>(name, order, weights);
 }
 
-std::unique_ptr<Kernel> KernelFactory::createBlurKernel(const unsigned int order) {
+std::unique_ptr<Kernel> KernelFactory::createBoxBlurKernel(const unsigned int order) {
     checkOrderValidity(order);
 
     const unsigned int num_of_values = order * order;
     const float mean =  1 / static_cast<float>(num_of_values);
 
-    return createKernel("blur", order, std::vector(num_of_values, mean));
+    return createKernel("boxBlur", order, std::vector(num_of_values, mean));
 }
 
 std::unique_ptr<Kernel> KernelFactory::createEdgeDetectionKernel(const unsigned int order) {
