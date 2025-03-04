@@ -48,10 +48,11 @@ protected:
 
 TEST_F(ImageProcessingTest, testConvolutionWhenValuesAreInRange) {
     constexpr unsigned int order = 3;
+    constexpr int normFactor = 40;
     const std::string kernelName = "inRangeKernel";
-    const Kernel kernel(kernelName, order, std::vector<float> {  0.025, 0.1, 0.025,
-                                                                      0.1, 0.5, 0.1,
-                                                                    0.025, 0.1, 0.025   });
+    const Kernel kernel(kernelName, order, std::vector<int> {  1, 4, 1,
+                                                                 4, 20, 4,
+                                                                  1, 4, 1   }, normFactor);
     constexpr unsigned int heightConvoluted = 1;
     constexpr unsigned int widthConvoluted = 3;
     constexpr std::array<uint8_t, widthConvoluted> redsConvoluted = {39, 76, 80};
@@ -87,8 +88,8 @@ TEST_F(ImageProcessingTest, testConvolutionWhenValuesAreNegative) {
     
     constexpr unsigned int order = 3;
     const std::string kernelName = "negativeKernel";
-    constexpr float negativeWeight = -1.0;
-    const Kernel negativeKernel(kernelName, order, std::vector(order * order, negativeWeight));
+    constexpr int negativeWeight = -1.0;
+    const Kernel negativeKernel(kernelName, order, std::vector(order * order, negativeWeight), 1);
 
     const std::unique_ptr<Image> imageProcessed = ImageProcessing::convolution(*imageToProcess, negativeKernel);
 
@@ -115,8 +116,8 @@ TEST_F(ImageProcessingTest, testConvolutionWhenValuesAreOutOfRange) {
 
     constexpr unsigned int order = 3;
     const std::string kernelName = "outOfRangeKernel";
-    constexpr float outOfRangeWeight = 256.0;
-    const Kernel outOfRangeKernel(kernelName, order, std::vector(order * order, outOfRangeWeight));
+    constexpr int outOfRangeWeight = 256;
+    const Kernel outOfRangeKernel(kernelName, order, std::vector(order * order, outOfRangeWeight), 1);
 
     const std::unique_ptr<Image> imageProcessed = ImageProcessing::convolution(*imageToProcess, outOfRangeKernel);
 

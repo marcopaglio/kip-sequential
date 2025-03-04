@@ -3,7 +3,7 @@
 #define MIN_VALUE 0
 #define MAX_VALUE 255
 
-uint8_t getChannelAsUint8(const float channel) {
+uint8_t getChannelAsUint8(const int channel) {
     if (channel < MIN_VALUE)
         return MIN_VALUE;
     if (channel > MAX_VALUE)
@@ -18,6 +18,8 @@ std::unique_ptr<Image> ImageProcessing::convolution(const Image &image, const Ke
 
     const unsigned int order = kernel.getOrder();
     const auto kernelWeights = kernel.getWeights();
+    const int normFactor = kernel.getNormalizationFactor();
+
 
     const unsigned int outputHeight = height - (order - 1);
     const unsigned int outputWidth = width - (order - 1);
@@ -25,21 +27,22 @@ std::unique_ptr<Image> ImageProcessing::convolution(const Image &image, const Ke
     std::vector pixels(outputHeight, std::vector<Pixel>(outputWidth));
     for (unsigned int y = 0; y < outputHeight; y++) {
         for (unsigned int x = 0; x < outputWidth; x++) {
-            float channelRed = 0;
-            float channelGreen = 0;
-            float channelBlue = 0;
+            int channelRed = 0;
+            int channelGreen = 0;
+            int channelBlue = 0;
 
             for (unsigned int j = 0; j < order; j++) {
                 for (unsigned int i = 0; i < order; i++) {
                     Pixel originalPixel = originalData[y + j][x + i];
-                    const float kernelWeight = kernelWeights[j * order + i];
-                    channelRed += static_cast<float>(originalPixel.getR()) * kernelWeight;
-                    channelGreen += static_cast<float>(originalPixel.getG()) * kernelWeight;
-                    channelBlue += static_cast<float>(originalPixel.getB()) * kernelWeight;
+                    const int kernelWeight = kernelWeights[j * order + i];
+                    channelRed += static_cast<int>(originalPixel.getR()) * kernelWeight;
+                    channelGreen += static_cast<int>(originalPixel.getG()) * kernelWeight;
+                    channelBlue += static_cast<int>(originalPixel.getB()) * kernelWeight;
                 }
             }
-            pixels[y][x] = Pixel(getChannelAsUint8(channelRed),
-                getChannelAsUint8(channelGreen), getChannelAsUint8(channelBlue));
+            pixels[y][x] = Pixel(getChannelAsUint8(channelRed/normFactor),
+                getChannelAsUint8(channelGreen/normFactor),
+                getChannelAsUint8(channelBlue/normFactor));
         }
     }
 

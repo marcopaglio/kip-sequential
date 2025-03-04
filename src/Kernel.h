@@ -6,17 +6,20 @@
 
 class Kernel {
 public:
-    explicit Kernel(std::string name, unsigned int order, const std::vector<float>& weights);
+    explicit Kernel(std::string name, unsigned int order, const std::vector<int>& weights, int normFactor);
     ~Kernel();
 
     [[nodiscard]] std::string getName() const;
     [[nodiscard]] unsigned int getOrder() const;
-    [[nodiscard]] std::vector<float> getWeights() const;
+    [[nodiscard]] std::vector<int> getWeights() const;
+    [[nodiscard]] int getNormalizationFactor() const;
 
 private:
     std::string name;
     unsigned int order;
-    std::vector<float> weights;
+    std::vector<int> weights;
+    int normalizationFactor;
+
 };
 
 
