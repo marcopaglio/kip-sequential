@@ -1,25 +1,22 @@
 #include <gtest/gtest.h>
 #include "../src/KernelFactory.h"
 
-class BlurKernelFactoryTest : public ::testing::TestWithParam<std::pair<unsigned int, int>> {
+class BlurKernelFactoryTest : public ::testing::TestWithParam<unsigned int> {
 protected:
     std::string boxBlurName = "boxBlur";
 };
 
 INSTANTIATE_TEST_SUITE_P(, BlurKernelFactoryTest,
-                         testing::Values(
-                             std::make_pair(3, 9),
-                             std::make_pair(5, 25),
-                             std::make_pair(7, 49)),
+                         testing::Values(3, 5, 7, 9),
                         [](const testing::TestParamInfo<BlurKernelFactoryTest::ParamType>& info) {
                             std::stringstream suffixStream;
-                            suffixStream << "WhenOrderIs" << info.param.first;
+                            suffixStream << "WhenOrderIs" << info.param;
                             return suffixStream.str();
                         });
 
 
 TEST_P(BlurKernelFactoryTest, testCreateBlurKernel) {
-    const unsigned int order = GetParam().first;
+    const unsigned int order = GetParam();
     const unsigned int numElements = order * order;
     const std::unique_ptr<Kernel> kernel = KernelFactory::createBoxBlurKernel(order);
 
