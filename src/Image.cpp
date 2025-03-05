@@ -1,6 +1,6 @@
 #include "Image.h"
 
-Image::Image(const unsigned int w, const unsigned int h, const std::vector<std::vector<Pixel>>& data):
+Image::Image(const unsigned int w, const unsigned int h, const std::vector<Pixel>& data):
     width(w), height(h), data(data) {}
 
 Image::~Image() = default;
@@ -13,6 +13,6 @@ unsigned int Image::getHeight() const {
     return height;
 }
 
-std::vector<std::vector<Pixel>> Image::getData() const {
+std::vector<Pixel> Image::getData() const {
     return data;
 }
