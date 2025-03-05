@@ -21,11 +21,11 @@ std::unique_ptr<Image> STBImageReader::loadRGBImage(const std::filesystem::path 
     }
 
     // conversion
-    std::vector pixels(height, std::vector<Pixel>(width));
+    std::vector<Pixel> pixels (width * height);
     for (unsigned int y = 0; y < height; ++y) {
         for (unsigned int x = 0; x < width; ++x) {
             const unsigned int idx = (y * width + x) * RGB_CHANNELS;
-            pixels[y][x] = Pixel(imgData[idx], imgData[idx + 1], imgData[idx + 2]);
+            pixels[y * width + x] = Pixel(imgData[idx], imgData[idx + 1], imgData[idx + 2]);
         }
     }
 
@@ -44,7 +44,7 @@ void STBImageReader::saveJPGImage(const Image &img, const std::filesystem::path 
     for (unsigned int y = 0; y < height; ++y) {
         for (unsigned int x = 0; x < width; ++x) {
             const unsigned int idx = (y * width + x) * RGB_CHANNELS;
-            Pixel pixel = pixels[y][x];
+            Pixel pixel = pixels[y * width + x];
             flatData[idx] = pixel.getR();
             flatData[idx + 1] = pixel.getG();
             flatData[idx + 2] = pixel.getB();
