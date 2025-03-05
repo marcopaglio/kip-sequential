@@ -7,7 +7,6 @@ FetchContent_MakeAvailable(googletest)
 
 set(TEST_SOURCES
         runAllTests.cpp
-        PixelTest.cpp
         KernelTest.cpp
         ImageTest.cpp
         STBImageReaderTest.cpp

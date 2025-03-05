@@ -21,16 +21,21 @@ std::unique_ptr<Image> STBImageReader::loadRGBImage(const std::filesystem::path 
     }
 
     // conversion
-    std::vector<Pixel> pixels (width * height);
+    std::vector<uint8_t> reds (width * height);
+    std::vector<uint8_t> greens (width * height);
+    std::vector<uint8_t> blues (width * height);
     for (unsigned int y = 0; y < height; ++y) {
         for (unsigned int x = 0; x < width; ++x) {
+            const unsigned int pos = y * width + x;
             const unsigned int idx = (y * width + x) * RGB_CHANNELS;
-            pixels[y * width + x] = Pixel(imgData[idx], imgData[idx + 1], imgData[idx + 2]);
+            reds[pos] = imgData[idx];
+            greens[pos] = imgData[idx + 1];
+            blues[pos] = imgData[idx + 2];
         }
     }
 
     stbi_image_free(imgData);
-    return std::make_unique<Image>(width, height, pixels);
+    return std::make_unique<Image>(width, height, reds, greens, blues);
 }
 
 void STBImageReader::saveJPGImage(const Image &img, const std::filesystem::path &filePath) {
@@ -40,14 +45,16 @@ void STBImageReader::saveJPGImage(const Image &img, const std::filesystem::path 
     std::vector<uint8_t> flatData(width * height * RGB_CHANNELS);
 
     // retrieve data
-    const auto pixels = img.getData();
+    const auto reds = img.getReds();
+    const auto greens = img.getGreens();
+    const auto blues = img.getBlues();
     for (unsigned int y = 0; y < height; ++y) {
         for (unsigned int x = 0; x < width; ++x) {
             const unsigned int idx = (y * width + x) * RGB_CHANNELS;
-            Pixel pixel = pixels[y * width + x];
-            flatData[idx] = pixel.getR();
-            flatData[idx + 1] = pixel.getG();
-            flatData[idx + 2] = pixel.getB();
+            const unsigned int pos = y * width + x;
+            flatData[idx] = reds[pos];
+            flatData[idx + 1] = greens[pos];
+            flatData[idx + 2] = blues[pos];
         }
     }
 
