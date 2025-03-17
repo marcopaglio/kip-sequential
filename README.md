@@ -89,31 +89,40 @@ Depending on the element values, a kernel can cause a wide range of effects or e
 
 - **Identity**: the output image is not transformed.
   ```
-  Example 3x3:  
-                  [ 0  0  0 ]
-                  [ 0  1  0 ]
-                  [ 0  0  0 ]
+  Example 3x3:                          Example 5x5:      
+                                                        [ 0  0  0  0  0 ]
+                  [ 0  0  0 ]                           [ 0  0  0  0  0 ]
+                  [ 0  1  0 ]                           [ 0  0  1  0  0 ]
+                  [ 0  0  0 ]                           [ 0  0  0  0  0 ]
+                                                        [ 0  0  0  0  0 ]
   ```
 - **Box Blur**: a simple averaging filter that replaces each pixel with the mean of its neighbors.
   ```
-  Example 3x3:  
-                  [ 1  1  1 ]
-              1/9 [ 1  1  1 ]
-                  [ 1  1  1 ]
+  Example 3x3:                          Example 5x5:    
+                                                        [ 1  1  1  1  1 ]
+                  [ 1  1  1 ]                           [ 1  1  1  1  1 ]
+              1/9 [ 1  1  1 ]                      1/25 [ 1  1  1  1  1 ]
+                  [ 1  1  1 ]                           [ 1  1  1  1  1 ]
+                                                        [ 1  1  1  1  1 ]
   ```
 - **Edge Detection**: highlight changes in intensity, useful for detecting shapes and boundaries.
   ```
-  Example 3x3:  
-                  [ -1  -1  -1 ]
-                  [ -1   8  -1 ]
-                  [ -1  -1  -1 ]
+  Example 3x3:                          Example 5x5:    
+                                                        [ -1  -1  -1  -1  -1 ]
+                  [ -1  -1  -1 ]                        [ -1  -2  -2  -2  -1 ]
+                  [ -1   8  -1 ]                        [ -1  -2  32  -2  -1 ]
+                  [ -1  -1  -1 ]                        [ -1  -2  -2  -2  -1 ]
+                                                        [ -1  -1  -1  -1  -1 ]
   ```
 - **Sharpen**: enhance edges and details by amplifying differences.
   ```
-  Example 3x3:  
-                  [  0  -1   0 ]
-                  [ -1   5  -1 ]
-                  [  0  -1   0 ]
+  Example 3x3:                          Example 5x5:    
+                                                        [  0   0  -1   0   0 ]
+                  [  0  -1   0 ]                        [  0  -1  -2  -1   0 ]
+                  [ -1   5  -1 ]                        [ -1  -2  17  -2  -1 ]
+                  [  0  -1   0 ]                        [  0  -1  -2  -1   0 ]
+                                                        [  0   0  -1   0   0 ]
+
   ```
 
 ## Implementation
