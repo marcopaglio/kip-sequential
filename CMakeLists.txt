@@ -3,6 +3,11 @@ project(kip_sequential)
 
 set(CMAKE_CXX_STANDARD 17)
 
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC" AND USE_ASAN)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
+    add_compile_options(/fsanitize=address /Zi)
+endif()
+
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 add_library(kip_sequential_lib
