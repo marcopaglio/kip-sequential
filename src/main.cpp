@@ -52,7 +52,7 @@ int main() {
                 default:
                     throw std::invalid_argument("Invalid kernel type");
             }
-            std::cout << "Kernel of type \"" << kernel->getName() << "\" and size " << kernel->getOrder() <<
+            std::cout << "Kernel \"" << kernel->getName() << "\" " << kernel->getOrder() << "x" << kernel->getOrder() <<
                 " created." << std::endl;
 
             // transform
@@ -63,7 +63,7 @@ int main() {
             const std::chrono::duration<double> wall_clock_time_end = timer->now();
             const std::chrono::duration<double> wall_clock_time_duration = wall_clock_time_end - wall_clock_time_start;
             std::cout << "Image processed " << NUM_REPS << " times in " << wall_clock_time_duration.count() << " seconds [Wall Clock]" <<
-                " with an average of " << wall_clock_time_duration.count() / NUM_REPS << " seconds per repetition." << std::endl;
+                " with an average of " << wall_clock_time_duration.count() / NUM_REPS << " seconds [Wall Clock] per repetition." << std::endl;
 
             // save
             fullPathStream << PROJECT_SOURCE_DIR << "/src/imgs/output/" << imageName <<
