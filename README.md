@@ -12,7 +12,8 @@ Kernel Image Processing is used to enhance, filter, and analyze images. It invol
 1. The kernel moves across the image pixel by pixel.
 2. At each position, it multiplies its values with the corresponding pixel values in the image.
 3. The results are summed up and replace the central pixel.
-4. This process is repeated for all pixels, generating a transformed image.
+
+This process is repeated for all pixels, generating a transformed image.
 
 <p align="center">
   <img src="/../assets/2D_Convolution_Animation.gif" alt="Screenshot of the simple BookingApp GUI." title="BookingApp GUI" width="30%"/>
@@ -20,9 +21,9 @@ Kernel Image Processing is used to enhance, filter, and analyze images. It invol
 
 The general expression of the convolution of an image $I$ with a kernel $K$ is defined as:<br>
 
-$$I'(x, y) = \sum_{m=-k}^k \sum_{n=-k}^k K(m, n) \cdot I(x+m, y+n) $$
+$$T(x, y) = \sum_{m=-k}^k \sum_{n=-k}^k K(m, n) \cdot I(x+m, y+n) $$
 
-where $x$ and $y$ are the coordinates of the pixel in the 2D image, $I'$ is the transformed image, and every element of $K$ is considered by $-k \leq m \leq k$ and $-k \leq n \leq k$, where $k$ is half the kernel size (approximated by default, e.g. for a 3x3 kernel, k = 1).
+where $x$ and $y$ are the coordinates of the pixel in the 2D image, $T$ is the transformed image, and every element of $K$ is considered by $-k \leq m \leq k$ and $-k \leq n \leq k$, where $k$ is half the kernel size approximated by default (e.g. for a 3x3 kernel, k = 1).
 
 This can be described algorithmically with the following pseudo-code:
 ```
@@ -42,7 +43,7 @@ This can be described algorithmically with the following pseudo-code:
 
 ### Edge handling
 
-Kernel convolution requires values from pixels outside of the image boundaries; there are a variety of methods for handling image edges:
+Kernel convolution requires values from pixels outside of the image boundaries. There are a variety of methods for handling image edges:
 
 - **Constant Padding**: use constant value for pixels outside of image, usually black pixels (zeros values).
   ```
@@ -127,4 +128,6 @@ Depending on the element values, a kernel can cause a wide range of effects or e
 
 ## Implementation
 
-TODO
+TODO UML
+
+### Misurazione del tempo
