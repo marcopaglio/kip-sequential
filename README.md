@@ -134,12 +134,12 @@ The code's structure is fully described by the following class diagram:
   <img src="/../assets/UML_classDiagram.jpg" alt="UML Class Diagram of Kernel Image Processing." title="Class Diagram" width="70%"/>
 </p>
 
-The implementation is intentionally kept simple:
+The implementation in **C++** uses **CMake** and is intentionally kept simple:
 
 - the three entities (**Pixel**, **Image** and **Kernel**) are read only: they have no setter or other modifier methods, so how they remain as when they are built with the constructor. As a consequence, image processing's functions have to instantiate new objects instead of modififying the existing ones.
 - pixels in the image are stored as vectors of vectors, i.e. `vector<vector<Pixel>>`, in order to access the elements of the image with a matrix. This involves in lots of overhead because the use of STL, but code is clearer. Alternative versions of this data structure are proposed in [pixel_vector](/../pixel_vector) and [pixel_SoA](/../pixel_SoA) branches, where pixels are stored as a unique vector, i.e. `vector<Pixel>`, and three simple vectors of red, green and blue values, i.e. `vector<uint_8>`, respectively.
 - there is no need to have multiple kernel type classes because they all behave the same way, but the way they are constructed depends on their type. For this reason, **KernelFactory** has a static method for each kernel type which builds the kernel with the appropriate values based on its order.
-- to read pixel values from images (JPG, PNG, etc) and to save the transformed image into a JPG (or similarly in other formats) images, an external library is used: [**stb**](https://github.com/nothings/stb "Github repository of stb") . It just needs to include in the project its two header files (`stb_image.h`, `stb_image_write.h`), and then to use the following definitions and inclusions in the code where it is used:
+- to read pixel values from images (JPG, PNG, etc) and to save the transformed image into a JPG (or similarly in other formats) images, an external library is used: [**stb**](https://github.com/nothings/stb "GitHub repository of stb") . It just needs to include in the project its two header files (`stb_image.h`, `stb_image_write.h`), and then to use the following definitions and inclusions in the code where it is used:
   ```
   #define STB_IMAGE_IMPLEMENTATION
   #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -161,6 +161,20 @@ The implementation is intentionally kept simple:
   > :bulb: **Tip**: Actually, edge handling responsability lies with the programmer which should call `extendEdge` with the right side dimension, i.e. the half kernel order, before `convolution`. If `extendEdge` is not call, `convolution` works as well, but the transformed image has sizes cropped with respect to the input one. Same thing if `extendEdge` is called with `0` as padding.
   
 
-### TEST
+## Unit Test
+
+To ensure sequential and parallel versions work, the application code is supported by unit tests.<br>
+
+Tests are written through the [GoogleTest](https://github.com/google/googletest "GitHub repository of GoogleTest") framework, configured in the `CMakeList.txt` located in the [tests](./tests) directory.<br>
+
+Entities' tests (**PixelTest**, **ImageTest**, and **KernelTest**) are quite simple and they just verify the constructor or default constructor behaviour.
+
+> :pencil: **Note**: Assertions uses `EXPECT_EQ` if its failure doesn't affect subsequent tests, or `ASSERT_EQ` if its truthfulness is necessary for the next ones.
+
+Tests for the kernel factory class (**KernelFactoryTest**) aims to checks the validity of kernel attributes' value, in particular of the oddity of the dimsnion of the kernel; then to verify the construction of the kernel respects its type with different orders. Because tests differ only in values, parameterized tests are here used. These checks are done for each type of kernel created, i.e. for each method of the class.<br>
+
+Testing a third-party library is a bad practice in unit testing, so for testing the STB functions a wrapper class has been istantiated, i.e. facade design pattern is applied. This is the reason why **STBImageReader** inherits from the abstract class **ImageReader**: in this way, even if the behaviour of STB changes, the main code will not change, but only the wrapper class. Anyway, tests for the loading mathod uses a simple and well-known JPG image to check if expected values are retrived from the image through the library; tests for the saving method just checks if an JPG image file is created after the library is called (without checking if values are correct, because this should rely on a library itself to read the content). For both methods, tests checks also that an exception is thrown if the path is not correct.<br>
+
+The most important tests for the project are for the image processing algorithms. For the image convolution, pixel values of the transformed image should be in accord to the image and kernel input, manually calcolated through the formula defined in the [introduction](#introduction). For the edge extention, the new dimensions of the extented image are checked, as well as both old (in the middle) and new (in the edges) pixel values, in accord to the input image and padding. In both functions, tests check that the returned image is a new one.
 
 ### Misurazione del tempo (struttura MAIN)
