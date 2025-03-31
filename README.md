@@ -128,6 +128,39 @@ Depending on the element values, a kernel can cause a wide range of effects or e
 
 ## Implementation
 
-TODO UML
+The code's structure is fully described by the following class diagram:
 
-### Misurazione del tempo
+<p align="center">
+  <img src="/../assets/UML_classDiagram.jpg" alt="UML Class Diagram of Kernel Image Processing." title="Class Diagram" width="70%"/>
+</p>
+
+The implementation is intentionally kept simple:
+
+- the three entities (**Pixel**, **Image** and **Kernel**) are read only: they have no setter or other modifier methods, so how they remain as when they are built with the constructor. As a consequence, image processing's functions have to instantiate new objects instead of modififying the existing ones.
+- pixels in the image are stored as vectors of vectors, i.e. `vector<vector<Pixel>>`, in order to access the elements of the image with a matrix. This involves in lots of overhead because the use of STL, but code is clearer. Alternative versions of this data structure are proposed in [pixel_vector](/../pixel_vector) and [pixel_SoA](/../pixel_SoA) branches, where pixels are stored as a unique vector, i.e. `vector<Pixel>`, and three simple vectors of red, green and blue values, i.e. `vector<uint_8>`, respectively.
+- there is no need to have multiple kernel type classes because they all behave the same way, but the way they are constructed depends on their type. For this reason, **KernelFactory** has a static method for each kernel type which builds the kernel with the appropriate values based on its order.
+- to read pixel values from images (JPG, PNG, etc) and to save the transformed image into a JPG (or similarly in other formats) images, an external library is used: [**stb**](https://github.com/nothings/stb "Github repository of stb") . It just needs to include in the project its two header files (`stb_image.h`, `stb_image_write.h`), and then to use the following definitions and inclusions in the code where it is used:
+  ```
+  #define STB_IMAGE_IMPLEMENTATION
+  #define STB_IMAGE_WRITE_IMPLEMENTATION
+  #include "stb_image.h"
+  #include "stb_image_write.h"
+  ```
+  The library uses its `stbi_load` function to recover data (width, height, channels and pixel values) from a path specified image, and `stbi_write_jpg` to store a new JPEG image. In both cases, pixel values are stored as an array of chars, i.e. `unsigned char*` where RGB values of a pixel are stored sequentially, so values have to be converted properly from the format used in the code with that used by stb. If the loading fails, `NULL` is returned; if the storing fails `stbi_write_jpg` returns `0`.
+- **ImageProcessing** gathers together functions that modifies Images. In particular:
+  * `extendEdge` creates a new image similar to the input one but with edges extended by `padding` pixels for each side with the *extend* method described in [edge handling](#edge-handling);
+  * `convolution` creates a transformed image starting from the input one by applying [image convolution](#introduction) through the input kernel. It consists of four annidated cycles:
+    ```
+    for (unsigned int y = 0; y < outputHeight; y++)
+        for (unsigned int x = 0; x < outputWidth; x++)
+            for (unsigned int j = 0; j < order; j++)
+                for (unsigned int i = 0; i < order; i++)
+    ```
+    where `outputWidth` and `outputHeight` are the dimension of the transformed image, and `order` is the dimension of the kernel. Before creating a new pixel, its values are conformed from 0 to 255 even if the transformation had given them an out-of-range value.<br><br>
+  
+  > :bulb: **Tip**: Actually, edge handling responsability lies with the programmer which should call `extendEdge` with the right side dimension, i.e. the half kernel order, before `convolution`. If `extendEdge` is not call, `convolution` works as well, but the transformed image has sizes cropped with respect to the input one. Same thing if `extendEdge` is called with `0` as padding.
+  
+
+### TEST
+
+### Misurazione del tempo (struttura MAIN)
