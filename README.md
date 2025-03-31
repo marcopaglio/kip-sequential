@@ -177,7 +177,15 @@ Testing a third-party library is a bad practice in unit testing, so for testing 
 
 The most important tests for the project are for the image processing algorithms. For the image convolution, pixel values of the transformed image should be in accord to the image and kernel input, manually calcolated through the formula defined in the [introduction](#introduction); some tests forces the transformed image to have out-of-range values for pixels, so that they can check if in-range convertion works. For the edge extention, the new dimensions of the extented image are checked, as well as both old (in the middle) and new (in the edges) pixel values, in accord to the input image and padding. In both functions, tests check that the returned image is a new one.
 
-### Misurazione del tempo (struttura MAIN)
+### Main Program
+
+Aim of this project is to measure the execution time of sequential execution of kernel image filtering, compared with its parallel versions. The comparison works well only if the **wall-clock time** is used because it measure the elapsed real-time instead of processor time which is the same (more or less) amount sequential and parallel versions. In C++, this can be done through the standard chrono library with its classes `high_resolution_clock` and `steady_clock`. The last one is more reliable but requires the steadyness of the clock, i.e. the time between ticks should be always constant even in case of some external clock adjustment. Not always the system (TODO: di chi è la colpa??) works in this way, so as alternative the first one is used and uses the smallest tick period provided by the implementation. In order to use, the best available one, in the main program a simple check (`is_steady`) is done to decide which to use. Because chrono functions have different names, wrapper classes are used to make the main code uniform.
+
+Because the aim of the project, the chrono is started just before the call to the `convolution` method, and it is ended as soon as it finished. Each image is processed multiple times (e.g. 3) to reduce external system overheads and obtain a more reliable time measurement. Other uninfluent execution parts of the main code, such as the loading/storing of the image and the kernel construction, are not time recorded. <br>
+
+Choosen images are 
+
+Kernel types are
 
 
 
