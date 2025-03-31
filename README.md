@@ -165,7 +165,7 @@ The implementation in **C++** uses **CMake** and is intentionally kept simple:
 
 To ensure sequential and parallel versions work, the application code is supported by unit tests.<br>
 
-Tests are written through the [GoogleTest](https://github.com/google/googletest "GitHub repository of GoogleTest") framework, configured in the `CMakeList.txt` located in the [tests](./tests) directory.<br>
+Tests are written through the [GoogleTest](https://github.com/google/googletest "GitHub repository of GoogleTest") framework, configured in the `CMakeLists.txt` located in the [tests](./tests) directory.<br>
 
 Entities' tests (**PixelTest**, **ImageTest**, and **KernelTest**) are quite simple and they just verify the constructor or default constructor behaviour.
 
@@ -175,6 +175,21 @@ Tests for the kernel factory class (**KernelFactoryTest**) aims to checks the va
 
 Testing a third-party library is a bad practice in unit testing, so for testing the STB functions a wrapper class has been istantiated, i.e. facade design pattern is applied. This is the reason why **STBImageReader** inherits from the abstract class **ImageReader**: in this way, even if the behaviour of STB changes, the main code will not change, but only the wrapper class. Anyway, tests for the loading mathod uses a simple and well-known JPG image to check if expected values are retrived from the image through the library; tests for the saving method just checks if an JPG image file is created after the library is called (without checking if values are correct, because this should rely on a library itself to read the content). For both methods, tests checks also that an exception is thrown if the path is not correct.<br>
 
-The most important tests for the project are for the image processing algorithms. For the image convolution, pixel values of the transformed image should be in accord to the image and kernel input, manually calcolated through the formula defined in the [introduction](#introduction). For the edge extention, the new dimensions of the extented image are checked, as well as both old (in the middle) and new (in the edges) pixel values, in accord to the input image and padding. In both functions, tests check that the returned image is a new one.
+The most important tests for the project are for the image processing algorithms. For the image convolution, pixel values of the transformed image should be in accord to the image and kernel input, manually calcolated through the formula defined in the [introduction](#introduction); some tests forces the transformed image to have out-of-range values for pixels, so that they can check if in-range convertion works. For the edge extention, the new dimensions of the extented image are checked, as well as both old (in the middle) and new (in the edges) pixel values, in accord to the input image and padding. In both functions, tests check that the returned image is a new one.
 
 ### Misurazione del tempo (struttura MAIN)
+
+
+
+### ASAN
+
+In the main `CmakeLists.txt` few lines of configuration code are inserted to enable the [Google AddressSanitizer](https://github.com/google/sanitizers/wiki/addresssanitizer "GitHub Repository of ASan") tool to check if there are no memory issues:
+```
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC" AND USE_ASAN)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
+    add_compile_options(/fsanitize=address /Zi)
+endif()
+```
+Currently, on Windows, this tool works well only with the MSVC compiler. Even if this project is built with LLVM/Clang, switching to MSVC does not need accommodations other than changing the compiler itself.<br>
+
+ASan instruments the code and generates an executable that substitute allocation/deallocation methods with its equivalent methods. In this way, memory issues are recognized and errors are print when the executable is executed. By the way, the overhead introduced in the program grows with the code complexity, and the execution time increases. Because this overhead is not always needed, the tool is turned on only when the Cmake option `USE_ASAN=ON` is set in the used profile (e.g. Debug, Release).
