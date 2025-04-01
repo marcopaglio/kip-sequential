@@ -177,19 +177,106 @@ Testing a third-party library is a bad practice in unit testing, so for testing 
 
 The most important tests for the project are for the image processing algorithms. For the image convolution, pixel values of the transformed image should be in accord to the image and kernel input, manually calcolated through the formula defined in the [introduction](#introduction); some tests forces the transformed image to have out-of-range values for pixels, so that they can check if in-range convertion works. For the edge extention, the new dimensions of the extented image are checked, as well as both old (in the middle) and new (in the edges) pixel values, in accord to the input image and padding. In both functions, tests check that the returned image is a new one.
 
-### Main Program
+## Main Program
 
 Aim of this project is to measure the execution time of sequential execution of kernel image filtering, compared with its parallel versions. The comparison works well only if the **wall-clock time** is used because it measure the elapsed real-time instead of processor time which is the same (more or less) amount sequential and parallel versions. In C++, this can be done through the standard chrono library with its classes `high_resolution_clock` and `steady_clock`. The last one is more reliable but requires the steadyness of the clock, i.e. the time between ticks should be always constant even in case of some external clock adjustment. Not always the system (TODO: di chi è la colpa??) works in this way, so as alternative the first one is used and uses the smallest tick period provided by the implementation. In order to use, the best available one, in the main program a simple check (`is_steady`) is done to decide which to use. Because chrono functions have different names, wrapper classes are used to make the main code uniform.
 
 Because the aim of the project, the chrono is started just before the call to the `convolution` method, and it is ended as soon as it finished. Each image is processed multiple times (e.g. 3) to reduce external system overheads and obtain a more reliable time measurement. Other uninfluent execution parts of the main code, such as the loading/storing of the image and the kernel construction, are not time recorded. <br>
 
-Choosen images are 
+Kernel types are of type `box blur` and `edge detection`. For each of them, different orders are used: `7`, `13`, `19`, `25`.
 
-Kernel types are
+Tests are done on very large images of random subjects in order to obtain more advantages from the parallel execution; in fact, parallelization works better if data are sufficiently big. Choosen images are called:
+- `4K-1`, `4K-2`, `4K-3` which have dimension 4000x2000 pixels;
+- `5K-1`, `5K-2`, `5K-3` which have dimension 5000x3000 pixels;
+- `6K-1`, `6K-2`, `6K-3` which have dimension 6000x4000 pixels;
+- `7K-1`, `7K-2`, `7K-3` which have dimension 7000x5000 pixels.
 
+They can be found in the [input](./src/imgs/input) folder.<br>
 
+Time measuraments of filtering with the different kernel type on the different images are summerized in the following table. Used hardware is:
+- [Intel Core i7-12650H](https://www.intel.com/content/www/us/en/products/sku/226066/intel-core-i712650h-processor-24m-cache-up-to-4-70-ghz/specifications.html "Specification page for Intel Core i7-12650H"): 2.30 GHz up to 4.70 GHz, 10 cores (6 Performance, 4 Efficient), 16 threads, 24 MB of cache L3;
+- 16 GB of RAM DDR5 (4800 MHz)
+- Windows 11 Home
 
-### ASAN
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th></th>
+      <th>4K</th>
+      <th>5K</th>
+      <th>6K</th>
+      <th>7K</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td></td>
+      <td><strong>Kernel Dimension</strong></td>
+      <td colspan="4"><strong>Execution Time</strong></td>
+    </tr>
+    <tr>
+      <td rowspan="4"><strong>Box Blurring</strong></td>
+      <td>7</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>13</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>19</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>25</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td rowspan="4"><strong>Edge Detection</strong></td>
+      <td>7</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>13</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>19</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>25</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+## ASAN
 
 In the main `CmakeLists.txt` few lines of configuration code are inserted to enable the [Google AddressSanitizer](https://github.com/google/sanitizers/wiki/addresssanitizer "GitHub Repository of ASan") tool to check if there are no memory issues:
 ```
