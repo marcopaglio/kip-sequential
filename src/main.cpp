@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "EdgeExtender.h"
 #include "HighResolutionTimer.h"
 #include "Image.h"
 #include "Kernel.h"
@@ -46,6 +47,9 @@ int main() {
 
         // enlargement
         constexpr unsigned int order = 7;
+        EdgeExtender edgeExtender{};
+        ImageProcessing imageProcessing{edgeExtender};
+
 
         for (const auto kernelType : KernelTypes::allTypes) {
             // create kernel
@@ -67,7 +71,7 @@ int main() {
             const std::chrono::duration<double> wall_clock_time_start = timer->now();
             std::unique_ptr<Image> outputImage;
             for (unsigned int rep = 0; rep < NUM_REPS; rep++)
-                outputImage = ImageProcessing::convolution(*img, *kernel);
+                outputImage = imageProcessing.convolution(*img, *kernel);
             const std::chrono::duration<double> wall_clock_time_end = timer->now();
             const std::chrono::duration<double> wall_clock_time_duration = wall_clock_time_end - wall_clock_time_start;
             std::cout << "Image processed " << NUM_REPS << " times in " << wall_clock_time_duration.count() << " seconds [Wall Clock]" <<

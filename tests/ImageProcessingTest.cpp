@@ -3,9 +3,15 @@
 
 #include <array>
 
+#include "../src/EdgeExtender.h"
 #include "../src/Image.h"
 #include "../src/Kernel.h"
 #include "../src/ImageProcessing.h"
+
+class MockEdgeHandler final : public EdgeHandler {
+public:
+    MOCK_METHOD(std::unique_ptr<Image>, prepareImage, (const Image& image, unsigned int padding), (override));
+};
 
 class ImageProcessingTest : public ::testing::Test {
 protected:
@@ -15,6 +21,8 @@ protected:
     Pixel rgb10, rgb11, rgb12, rgb13, rgb14;
     Pixel rgb20, rgb21, rgb22, rgb23, rgb24;
     Image* imageToProcess = nullptr;
+    MockEdgeHandler* edgeHandler = nullptr;
+    ImageProcessing* imageProcessing = nullptr;
 
     void SetUp() override {
         rgb00 = Pixel(120, 0, 130);
@@ -37,11 +45,24 @@ protected:
         const std::vector row2 = {rgb20, rgb21, rgb22, rgb23, rgb24};
 
         imageToProcess = new Image(width, height, std::vector{row0, row1, row2});
+        edgeHandler = new MockEdgeHandler();
+        imageProcessing = new ImageProcessing(*edgeHandler);
+
+        // Simulate returning a copy of imageToProcess
+        ON_CALL(*edgeHandler, prepareImage(testing::Ref(*imageToProcess), testing::An<unsigned int>()))
+            .WillByDefault(testing::Return(
+                testing::ByMove(std::make_unique<Image>(width, height, std::vector{row0, row1, row2}))));
     }
 
     void TearDown() override {
         delete imageToProcess;
         imageToProcess = nullptr;
+
+        delete imageProcessing;
+        imageProcessing = nullptr;
+
+        delete edgeHandler;
+        edgeHandler = nullptr;
     }
 };
 
@@ -58,7 +79,9 @@ TEST_F(ImageProcessingTest, testConvolutionWhenValuesAreInRange) {
     constexpr std::array<uint8_t, widthConvoluted> greensConvoluted = {56, 37, 74};
     constexpr std::array<uint8_t, widthConvoluted> bluesConvoluted = {117, 69, 134};
 
-    const std::unique_ptr<Image> imageProcessed = ImageProcessing::convolution(*imageToProcess, kernel);
+    EXPECT_CALL(*edgeHandler, prepareImage(testing::Ref(*imageToProcess), testing::An<unsigned int>())).Times(1);
+
+    const std::unique_ptr<Image> imageProcessed = imageProcessing->convolution(*imageToProcess, kernel);
 
     EXPECT_EQ(imageProcessed->getHeight(), heightConvoluted);
     EXPECT_EQ(imageProcessed->getWidth(), widthConvoluted);
@@ -90,7 +113,9 @@ TEST_F(ImageProcessingTest, testConvolutionWhenValuesAreNegative) {
     constexpr float negativeWeight = -1.0;
     const Kernel negativeKernel(kernelName, order, std::vector(order * order, negativeWeight));
 
-    const std::unique_ptr<Image> imageProcessed = ImageProcessing::convolution(*imageToProcess, negativeKernel);
+    EXPECT_CALL(*edgeHandler, prepareImage(testing::Ref(*imageToProcess), testing::An<unsigned int>())).Times(1);
+
+    const std::unique_ptr<Image> imageProcessed = imageProcessing->convolution(*imageToProcess, negativeKernel);
 
     for (unsigned int i = 0; i < 3; i++) {
         EXPECT_EQ(imageProcessed->getData()[0][i].getR(), 0);
@@ -118,7 +143,7 @@ TEST_F(ImageProcessingTest, testConvolutionWhenValuesAreOutOfRange) {
     constexpr float outOfRangeWeight = 256.0;
     const Kernel outOfRangeKernel(kernelName, order, std::vector(order * order, outOfRangeWeight));
 
-    const std::unique_ptr<Image> imageProcessed = ImageProcessing::convolution(*imageToProcess, outOfRangeKernel);
+    const std::unique_ptr<Image> imageProcessed = imageProcessing->convolution(*imageToProcess, outOfRangeKernel);
 
     for (unsigned int i = 0; i < 3; i++) {
         EXPECT_EQ(imageProcessed->getData()[0][i].getR(), 255);

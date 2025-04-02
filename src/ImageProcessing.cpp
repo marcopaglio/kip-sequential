@@ -11,16 +11,20 @@ uint8_t getChannelAsUint8(const float channel) {
     return static_cast<uint8_t>(channel);
 }
 
-std::unique_ptr<Image> ImageProcessing::convolution(const Image &image, const Kernel &kernel) {
-    const unsigned int height = image.getHeight();
-    const unsigned int width = image.getWidth();
-    const auto originalData = image.getData();
+ImageProcessing::ImageProcessing(EdgeHandler& edgeHandler) : edgeHandler(edgeHandler) {}
 
+ImageProcessing::~ImageProcessing() = default;
+
+std::unique_ptr<Image> ImageProcessing::convolution(const Image &image, const Kernel &kernel) {
     const unsigned int order = kernel.getOrder();
+    const auto preparedImage = edgeHandler.prepareImage(image, (order - 1) / 2);
+
+    const auto originalData = preparedImage->getData();
     const auto kernelWeights = kernel.getWeights();
 
-    const unsigned int outputHeight = height - (order - 1);
-    const unsigned int outputWidth = width - (order - 1);
+    const unsigned int outputHeight = preparedImage->getHeight() - (order - 1);
+    const unsigned int outputWidth = preparedImage->getWidth() - (order - 1);
+
 
     std::vector pixels(outputHeight, std::vector<Pixel>(outputWidth));
     for (unsigned int y = 0; y < outputHeight; y++) {
