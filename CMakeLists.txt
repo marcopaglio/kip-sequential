@@ -31,6 +31,10 @@ add_library(kip_sequential_lib
         src/HighResolutionTimer.h
         src/SteadyTimer.cpp
         src/SteadyTimer.h
+        src/EdgeExtender.cpp
+        src/EdgeExtender.h
+        src/EdgeHandler.cpp
+        src/EdgeHandler.h
 )
 
 add_executable(kip_sequential_main src/main.cpp)

@@ -8,7 +8,6 @@
 
 namespace ImageProcessing {
     std::unique_ptr<Image> convolution(const Image& image, const Kernel& kernel);
-    std::unique_ptr<Image> extendEdge(const Image &image, unsigned int padding);
 }
 
 

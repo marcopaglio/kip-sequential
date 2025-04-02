@@ -46,9 +46,6 @@ int main() {
 
         // enlargement
         constexpr unsigned int order = 7;
-        img = ImageProcessing::extendEdge(*img, (order - 1) / 2);
-        std::cout << "Image enlarged to " << img->getWidth() << "x" << img->getHeight() << std::endl;
-
 
         for (const auto kernelType : KernelTypes::allTypes) {
             // create kernel
