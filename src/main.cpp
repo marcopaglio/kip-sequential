@@ -10,8 +10,18 @@
 #include "SteadyTimer.h"
 #include "Timer.h"
 
-#define NUM_KERNELS 2
 #define NUM_REPS 3
+
+namespace KernelTypes {
+    constexpr unsigned int numKernelTypes = 2;
+
+    enum KernelTypes {
+        box_blur,
+        edge_detection
+    };
+
+    static KernelTypes allTypes[numKernelTypes] = {box_blur, edge_detection};
+}
 
 int main() {
     std::unique_ptr<Timer> timer;
@@ -39,14 +49,15 @@ int main() {
         img = ImageProcessing::extendEdge(*img, (order - 1) / 2);
         std::cout << "Image enlarged to " << img->getWidth() << "x" << img->getHeight() << std::endl;
 
-        for (unsigned int kernelType = 0; kernelType < NUM_KERNELS; kernelType++) {
+
+        for (const auto kernelType : KernelTypes::allTypes) {
             // create kernel
             std::unique_ptr<Kernel> kernel;
             switch (kernelType) {
-                case 0:
+                case KernelTypes::box_blur:
                     kernel = KernelFactory::createBoxBlurKernel(order);
                     break;
-                case 1:
+                case KernelTypes::edge_detection:
                     kernel = KernelFactory::createEdgeDetectionKernel(order);
                     break;
                 default:
