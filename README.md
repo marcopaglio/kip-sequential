@@ -179,7 +179,7 @@ The most important tests for the project are for the image processing algorithms
 
 ## Main Program
 
-Aim of this project is to measure the execution time of sequential execution of kernel image filtering, compared with its parallel versions. The comparison works well only if the **wall-clock time** is used because it measure the elapsed real-time instead of processor time which is the same (more or less) amount sequential and parallel versions. In C++, this can be done through the standard chrono library with its classes `high_resolution_clock` and `steady_clock`. The last one is more reliable but requires the steadyness of the clock, i.e. the time between ticks should be always constant even in case of some external clock adjustment. Not always the system (TODO: di chi è la colpa??) works in this way, so as alternative the first one is used and uses the smallest tick period provided by the implementation. In order to use, the best available one, in the main program a simple check (`is_steady`) is done to decide which to use. Because chrono functions have different names, wrapper classes are used to make the main code uniform.
+Aim of this project is to measure the execution time of sequential execution of kernel image filtering, compared with its parallel versions. The comparison works well only if the **wall-clock time** is used because it measure the elapsed real-time instead of processor time which is the same (more or less) amount sequential and parallel versions. In C++, this can be done through the standard chrono library with its classes `high_resolution_clock` and `steady_clock`. The first one is more precise because uses the smallest tick period provided by the implementation, but to have results more consistent and reproducible it requires the steadyness of the clock, i.e. the time between ticks should be always constant even in case of some external clock adjustment. Not always the *C++ toolchain* (MSVC, MinGW, etc) choosen for the platform works in this way, so as alternative the last one always uses monotonic clock to measure code execution time even though it might be less sensitive than high_resolution_clock. In order to use, the best available one, in the main program a simple check (`std::chrono::high_resolution_clock::is_steady`) is done to decide which to use. Because chrono functions have different names, wrapper classes are used to make the main code uniform. On Windows I experimented that MSVC (with both MSVC and Clang compilers) works with steadyness, so `high_resolution_clock` is usable, while MinGW doesn't provide steadyness, so `steady_clock` is better.
 
 Because the aim of the project, the chrono is started just before the call to the `convolution` method, and it is ended as soon as it finished. Each image is processed multiple times (e.g. 3) to reduce external system overheads and obtain a more reliable time measurement. Other uninfluent execution parts of the main code, such as the loading/storing of the image and the kernel construction, are not time recorded. <br>
 
@@ -201,23 +201,43 @@ Time measuraments of filtering with the different kernel type on the different i
 <table>
   <thead>
     <tr>
-      <th></th>
-      <th></th>
-      <th>4K</th>
-      <th>5K</th>
-      <th>6K</th>
-      <th>7K</th>
+      <th colspan="3" rowspan="3">Execution Time</th>
+      <th colspan="12">Image Dimension</th>
+    </tr>
+    <tr>
+      <th colspan="3">4K</th>
+      <th colspan="3">5K</th>
+      <th colspan="3">6K</th>
+      <th colspan="3">7K</th>
+    </tr>
+    <tr>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td></td>
-      <td><strong>Kernel Dimension</strong></td>
-      <td colspan="4"><strong>Execution Time</strong></td>
-    </tr>
-    <tr>
+      <td rowspan="8"><strong>Kernel Dimension</strong></td>
       <td rowspan="4"><strong>Box Blurring</strong></td>
       <td>7</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
       <td></td>
       <td></td>
       <td></td>
@@ -229,6 +249,14 @@ Time measuraments of filtering with the different kernel type on the different i
       <td></td>
       <td></td>
       <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
     </tr>
     <tr>
       <td>19</td>
@@ -236,9 +264,25 @@ Time measuraments of filtering with the different kernel type on the different i
       <td></td>
       <td></td>
       <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
     </tr>
     <tr>
       <td>25</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
       <td></td>
       <td></td>
       <td></td>
@@ -251,9 +295,25 @@ Time measuraments of filtering with the different kernel type on the different i
       <td></td>
       <td></td>
       <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
     </tr>
     <tr>
       <td>13</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
       <td></td>
       <td></td>
       <td></td>
@@ -265,9 +325,25 @@ Time measuraments of filtering with the different kernel type on the different i
       <td></td>
       <td></td>
       <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
     </tr>
     <tr>
       <td>25</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
       <td></td>
       <td></td>
       <td></td>
