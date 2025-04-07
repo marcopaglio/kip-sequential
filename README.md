@@ -1,4 +1,4 @@
-# kip-sequential
+# Kip-sequential
 
 This is the *sequential* version of **Kernel Image Processing**, which is a convolution-based filtering applied to 2D images using a variable size kernel. Parallelized versions of kip-sequential can be found at:
 
@@ -126,30 +126,20 @@ Depending on the element values, a kernel can cause a wide range of effects or e
 
   ```
 
-## Implementation
+## Implementation Details
 
-The code's structure is fully described by the following class diagram:
+Kip-sequential is written in **C++** and uses **CMake** as build automation tool. The structure of the code is described by the following class diagram:
 
 <p align="center">
   <img src="/../assets/UML_classDiagram.jpg" alt="UML Class Diagram of Kernel Image Processing." title="Class Diagram" width="70%"/>
 </p>
 
-The implementation in **C++** uses **CMake** and is intentionally kept simple:
-
-- the three entities (**Pixel**, **Image** and **Kernel**) are read only: they have no setter or other modifier methods, so how they remain as when they are built with the constructor. As a consequence, image processing's functions have to instantiate new objects instead of modififying the existing ones.
-- pixels in the image are stored as vectors of vectors, i.e. `vector<vector<Pixel>>`, in order to access the elements of the image with a matrix. This involves in lots of overhead because the use of STL, but code is clearer. Alternative versions of this data structure are proposed in [pixel_vector](/../pixel_vector) and [pixel_SoA](/../pixel_SoA) branches, where pixels are stored as a unique vector, i.e. `vector<Pixel>`, and three simple vectors of red, green and blue values, i.e. `vector<uint_8>`, respectively.
-- there is no need to have multiple kernel type classes because they all behave the same way, but the way they are constructed depends on their type. For this reason, **KernelFactory** has a static method for each kernel type which builds the kernel with the appropriate values based on its order.
-- to read pixel values from images (JPG, PNG, etc) and to save the transformed image into a JPG (or similarly in other formats) images, an external library is used: [**stb**](https://github.com/nothings/stb "GitHub repository of stb") . It just needs to include in the project its two header files (`stb_image.h`, `stb_image_write.h`), and then to use the following definitions and inclusions in the code where it is used:
-  ```
-  #define STB_IMAGE_IMPLEMENTATION
-  #define STB_IMAGE_WRITE_IMPLEMENTATION
-  #include "stb_image.h"
-  #include "stb_image_write.h"
-  ```
-  The library uses its `stbi_load` function to recover data (width, height, channels and pixel values) from a path specified image, and `stbi_write_jpg` to store a new JPEG image. In both cases, pixel values are stored as an array of chars, i.e. `unsigned char*` where RGB values of a pixel are stored sequentially, so values have to be converted properly from the format used in the code with that used by stb. If the loading fails, `NULL` is returned; if the storing fails `stbi_write_jpg` returns `0`.
-- **ImageProcessing** gathers together functions that modifies Images. In particular:
-  * `extendEdge` creates a new image similar to the input one but with edges extended by `padding` pixels for each side with the *extend* method described in [edge handling](#edge-handling);
-  * `convolution` creates a transformed image starting from the input one by applying [image convolution](#introduction) through the input kernel. It consists of four annidated cycles:
+- entities (**Pixel**, **Image** and **Kernel**) are implemented as read-only: no setter or other modifier are defined, so that image processing functions must instantiate new objects instead of modifying the existing ones.
+- pixels are stored as a matrix, i.e. `vector<vector<Pixel>>`, in order to access the elements clearly. Unfortunately, this way incurs considerable overhead because of the *Standard Template Library* (STL). Alternative versions of this data structure are proposed in the [pixel_vector](/../pixel_vector) branch, in which pixels are stored as a single vector, i.e. `vector<Pixel>`, and [pixel_SoA](/../pixel_SoA) branch, which red, green and blue values are stored in indipendent vectors, i.e. `vector<uint_8>`.
+- kernels differ only in the way they are constructed. For this reason, **KernelFactory** has a static method for each kernel type that builds kernel values based on its order. In particular, only *box blur* and *edge detection* kernels described in [kernel types](#kernel-types) are used.
+- the processing core (**ImageProcessing**) collects the functions that modify images. In particular:
+  * `extendEdge` creates a new image with the edges extended by `padding` pixels on each side using the *extend* method described in [edge handling](#edge-handling);
+  * `convolution` creates a transformed image starting from the input one by applying [image convolution](#introduction) via the input kernel. It consists of four nested loops:
     ```
     for (unsigned int y = 0; y < outputHeight; y++)
         for (unsigned int x = 0; x < outputWidth; x++)
@@ -158,26 +148,25 @@ The implementation in **C++** uses **CMake** and is intentionally kept simple:
     ```
     where `outputWidth` and `outputHeight` are the dimension of the transformed image, and `order` is the dimension of the kernel. Before creating a new pixel, its values are conformed from 0 to 255 even if the transformation had given them an out-of-range value.<br><br>
   
-  > :bulb: **Tip**: Actually, edge handling responsability lies with the programmer which should call `extendEdge` with the right side dimension, i.e. the half kernel order, before `convolution`. If `extendEdge` is not call, `convolution` works as well, but the transformed image has sizes cropped with respect to the input one. Same thing if `extendEdge` is called with `0` as padding.
+  > :bulb: **Tip**: Actually, edge handling responsability lies with the programmer which should call `extendEdge` with the right padding, i.e. the half kernel order, before `convolution`. If `extendEdge` is not call, `convolution` works as well, but the transformed image has sizes cropped with respect to the input one. Same thing if `extendEdge` is called with `0` as padding.
+  > 
+  > An alternative version is presented in the [edgeHandler_strategy](/../edgeHandler_strategy) branch, in which edge handling is injected into the **ImageProcessing** class and used appropriately just before the image convolution. However, it introduces some overhead and forces to create the extended image more than once.
+
+- [**stb**](https://github.com/nothings/stb "GitHub repository of stb") is a collection of single-file header-file libraries for C/C++ used to:
+  * retrieve data (i.e. width, height, channels and pixel values) from an image specified by the path, through its `stbi_load` function, which also converts them in RGB images;
+  * save the transformed image into a new JPG image through its `stbi_write_jpg` function.
   
+  In both cases, it stores the RGB pixel sequentially as an array of `unsigned char`, so proper convertion from/to the format used in the code is required. To use *stb*, you must include its two header files (`stb_image.h`, `stb_image_write.h`) in your project and then use the following definitions and inclusions in the code in which it is used:
+  ```
+  #define STB_IMAGE_IMPLEMENTATION
+  #define STB_IMAGE_WRITE_IMPLEMENTATION
+  #include "stb_image.h"
+  #include "stb_image_write.h"
+  ```
 
-## Unit Test
+  > :warning: **Warning**: As written in [stb project](https://github.com/nothings/stb/blob/master/README.md "README file of stb GitHub repository"), some security-relevant bugs are discussed in public in Github, so it is strongly recommended to do not use the stb libraries.
 
-To ensure sequential and parallel versions work, the application code is supported by unit tests.<br>
-
-Tests are written through the [GoogleTest](https://github.com/google/googletest "GitHub repository of GoogleTest") framework, configured in the `CMakeLists.txt` located in the [tests](./tests) directory.<br>
-
-Entities' tests (**PixelTest**, **ImageTest**, and **KernelTest**) are quite simple and they just verify the constructor or default constructor behaviour.
-
-> :pencil: **Note**: Assertions uses `EXPECT_EQ` if its failure doesn't affect subsequent tests, or `ASSERT_EQ` if its truthfulness is necessary for the next ones.
-
-Tests for the kernel factory class (**KernelFactoryTest**) aims to checks the validity of kernel attributes' value, in particular of the oddity of the dimsnion of the kernel; then to verify the construction of the kernel respects its type with different orders. Because tests differ only in values, parameterized tests are here used. These checks are done for each type of kernel created, i.e. for each method of the class.<br>
-
-Testing a third-party library is a bad practice in unit testing, so for testing the STB functions a wrapper class has been istantiated, i.e. facade design pattern is applied. This is the reason why **STBImageReader** inherits from the abstract class **ImageReader**: in this way, even if the behaviour of STB changes, the main code will not change, but only the wrapper class. Anyway, tests for the loading mathod uses a simple and well-known JPG image to check if expected values are retrived from the image through the library; tests for the saving method just checks if an JPG image file is created after the library is called (without checking if values are correct, because this should rely on a library itself to read the content). For both methods, tests checks also that an exception is thrown if the path is not correct.<br>
-
-The most important tests for the project are for the image processing algorithms. For the image convolution, pixel values of the transformed image should be in accord to the image and kernel input, manually calcolated through the formula defined in the [introduction](#introduction); some tests forces the transformed image to have out-of-range values for pixels, so that they can check if in-range convertion works. For the edge extention, the new dimensions of the extented image are checked, as well as both old (in the middle) and new (in the edges) pixel values, in accord to the input image and padding. In both functions, tests check that the returned image is a new one.
-
-## Main Program
+### Main Program
 
 Aim of this project is to measure the execution time of sequential execution of kernel image filtering, compared with its parallel versions. The comparison works well only if the **wall-clock time** is used because it measure the elapsed real-time instead of processor time which is the same (more or less) amount sequential and parallel versions. In C++, this can be done through the standard chrono library with its classes `high_resolution_clock` and `steady_clock`. The first one is more precise because uses the smallest tick period provided by the implementation, but to have results more consistent and reproducible it requires the steadyness of the clock, i.e. the time between ticks should be always constant even in case of some external clock adjustment. Not always the *C++ toolchain* (MSVC, MinGW, etc) choosen for the platform works in this way, so as alternative the last one always uses monotonic clock to measure code execution time even though it might be less sensitive than high_resolution_clock. In order to use, the best available one, in the main program a simple check (`std::chrono::high_resolution_clock::is_steady`) is done to decide which to use. Because chrono functions have different names, wrapper classes are used to make the main code uniform. On Windows I experimented that MSVC (with both MSVC and Clang compilers) works with steadyness, so `high_resolution_clock` is usable, while MinGW doesn't provide steadyness, so `steady_clock` is better.
 
@@ -352,6 +341,22 @@ Time measuraments of filtering with the different kernel type on the different i
   </tbody>
 </table>
 
+## Unit Test
+
+To ensure sequential and parallel versions work, the application code is supported by unit tests.<br>
+
+Tests are written through the [GoogleTest](https://github.com/google/googletest "GitHub repository of GoogleTest") framework, configured in the `CMakeLists.txt` located in the [tests](./tests) directory.<br>
+
+Entities' tests (**PixelTest**, **ImageTest**, and **KernelTest**) are quite simple and they just verify the constructor or default constructor behaviour.
+
+> :pencil: **Note**: Assertions uses `EXPECT_EQ` if its failure doesn't affect subsequent tests, or `ASSERT_EQ` if its truthfulness is necessary for the next ones.
+
+Tests for the kernel factory class (**KernelFactoryTest**) aims to checks the validity of kernel attributes' value, in particular of the oddity of the dimsnion of the kernel; then to verify the construction of the kernel respects its type with different orders. Because tests differ only in values, parameterized tests are here used. These checks are done for each type of kernel created, i.e. for each method of the class.<br>
+
+Testing a third-party library is a bad practice in unit testing, so for testing the STB functions a wrapper class has been istantiated, i.e. facade design pattern is applied. This is the reason why **STBImageReader** inherits from the abstract class **ImageReader**: in this way, even if the behaviour of STB changes, the main code will not change, but only the wrapper class. Anyway, tests for the loading mathod uses a simple and well-known JPG image to check if expected values are retrived from the image through the library; tests for the saving method just checks if an JPG image file is created after the library is called (without checking if values are correct, because this should rely on a library itself to read the content). For both methods, tests checks also that an exception is thrown if the path is not correct.<br>
+
+The most important tests for the project are for the image processing algorithms. For the image convolution, pixel values of the transformed image should be in accord to the image and kernel input, manually calcolated through the formula defined in the [introduction](#introduction); some tests forces the transformed image to have out-of-range values for pixels, so that they can check if in-range convertion works. For the edge extention, the new dimensions of the extented image are checked, as well as both old (in the middle) and new (in the edges) pixel values, in accord to the input image and padding. In both functions, tests check that the returned image is a new one.
+
 ## ASAN
 
 In the main `CmakeLists.txt` few lines of configuration code are inserted to enable the [Google AddressSanitizer](https://github.com/google/sanitizers/wiki/addresssanitizer "GitHub Repository of ASan") tool to check if there are no memory issues:
@@ -364,3 +369,8 @@ endif()
 Currently, on Windows, this tool works well only with the MSVC compiler. Even if this project is built with LLVM/Clang, switching to MSVC does not need accommodations other than changing the compiler itself.<br>
 
 ASan instruments the code and generates an executable that substitute allocation/deallocation methods with its equivalent methods. In this way, memory issues are recognized and errors are print when the executable is executed. By the way, the overhead introduced in the program grows with the code complexity, and the execution time increases. Because this overhead is not always needed, the tool is turned on only when the Cmake option `-DUSE_ASAN=ON` is set in the used profile (e.g. Debug, Release).
+
+
+## Profiler
+
+TODO
