@@ -146,7 +146,7 @@ Kip-sequential is written in **C++** and uses **CMake** as build automation tool
 - pixels are stored as a matrix, i.e. `vector<vector<Pixel>>`, in order to access the elements clearly; unfortunately, this way incurs considerable overhead because of the *Standard Template Library* (STL). Alternative versions of this data structure are proposed in the [pixel_vector](/../pixel_vector) branch, in which pixels are stored as a single vector, i.e. `vector<Pixel>`, and [pixel_SoA](/../pixel_SoA) branch, which red, green and blue values are stored in indipendent vectors, i.e. `vector<uint_8>`.
 - kernels differ only in the way they are constructed; for this reason, **KernelFactory** has a static method for each type that builds kernel values based on its order. In particular, only *box blur* and *edge detection* kernels described in the Section [Kernel Types](#kernel-types) are used.
 - the processing core (**ImageProcessing**) collects the functions that modify images:
-  * `extendEdge` generates a new image with the edges extended by `padding` pixels on each side using the *extend* method described in the Section [Edge Handling](#edge-handling);
+  * `extendEdge` generates a new image with the edges extended by `padding` pixels on each side using the *extend* method described in the Section [Edge Handling](#edge-handling).
   * `convolution` creates a transformed image by applying convolution of the input image with the input kernel, as described in the [Introduction](#introduction). It consists of four nested loops:
     ```
     for (unsigned int y = 0; y < outputHeight; y++)
@@ -161,7 +161,7 @@ Kip-sequential is written in **C++** and uses **CMake** as build automation tool
   > An alternative version is presented in the [edgeHandler_strategy](/../edgeHandler_strategy) branch, in which edge handling is injected into the **ImageProcessing** class and used appropriately just before the image convolution. However, it introduces some overhead and forces to create the extended image each time, rather than once.
 
 - [**stb**](https://github.com/nothings/stb "GitHub repository of stb") is a collection of single-file header-file libraries for C/C++ used to:
-  * retrieve data (i.e. width, height, channels and pixel values) from an image specified by the path, through its `stbi_load` function, which also converts them in RGB images;
+  * retrieve data (i.e. width, height, channels and pixel values) from an image specified by the path, through its `stbi_load` function, which also converts them in RGB images.
   * save the transformed image into a new JPG image through its `stbi_write_jpg` function.
   
   In both cases, it stores RGB pixels sequentially as an array of `unsigned char`, so proper convertion from/to the format used in the code is required. To use *stb*, you must include its two header files (`stb_image.h`, `stb_image_write.h`) in your project and then use the following definitions and inclusions in the code in which it is used:
@@ -173,6 +173,27 @@ Kip-sequential is written in **C++** and uses **CMake** as build automation tool
   ```
 
   > :warning: **Warning**: As written in [stb project](https://github.com/nothings/stb/blob/master/README.md "README file of stb GitHub repository"), some security-relevant bugs are discussed in public in Github, so it is strongly recommended to do not use the stb libraries.
+
+### Unit Test
+
+To ensure that both sequential and parallel versions work, the application code is supported by unit tests. Tests are written using the [GoogleTest](https://github.com/google/googletest "GitHub repository of GoogleTest") framework, configured in the `CMakeLists.txt` located in the [tests](./tests) folder:
+- entities' tests (**PixelTest**, **ImageTest** and **KernelTest**) are quite simple and only check the constructor or default constructor behaviour.
+
+  > :pencil: **Note**: Assertions uses `EXPECT_EQ` if its failure doesn't affect subsequent tests, or `ASSERT_EQ` if its truthfulness is necessary for the next ones.
+
+- tests for the kernels building (**KernelFactoryTest**) check for kernel size oddity, and thus that the construction of the kernel respects its type. Since tests for different orders differ only in their values, parameterized tests are used here.
+
+- image processing algorithms contain the most important logic to test (**ImageProcessingTest**):
+  * for `convolution`, the pixel values ​​of the transformed image are calculated by hand through the formula defined in the [Introduction](#introduction); some tests forces the transformed image to have out-of-range values for pixels, so that they can check if in-range convertion works.
+  * for `extendEdge`, it is checked that the value of both the internal pixels and the new pixels on the edges is correct.
+  
+  Tests for both functions also verify that the returned image is new.
+
+- testing a third-party library is a bad practice in unit testing, that's why *stb* functions are wrapped in custom classes, i.e. facade design pattern is applied:
+  * tests for loading use a simple and well-known JPG image to check if expected values are retrived from the image through the library.
+  * tests for saving only check whether a JPG image file is created after the library call (without checking whether values are correct, because reading the contents would rely on the library itself).
+  
+  Tests for both methods also verify that an exception is thrown if the path is incorrect.
 
 ## Experimentations
 
@@ -193,9 +214,9 @@ For each kernel type (i.e. `box blur` and `edge detection`) multiple order value
 #### Image Dimensions
 
 Tests are run on very large images of random subjects to get more benefits from parallel execution; in fact, parallelization works better if the data is sufficiently large. The selected images can be found in the [input](./src/imgs/input) folder and are called:
-- `4K` if the size is 4000x2000 pixels;
-- `5K` if the size is 5000x3000 pixels;
-- `6K` if the size is 6000x4000 pixels;
+- `4K` if the size is 4000x2000 pixels.
+- `5K` if the size is 5000x3000 pixels.
+- `6K` if the size is 6000x4000 pixels.
 - `7K` if the size is 7000x5000 pixels.
 
 #### Experimental Results
@@ -359,25 +380,9 @@ The following table summarizes the temporal measurements of convolutions on diff
 #### Hardware Details
 
 The relevant details of the hardware used are:
-- **CPU**: [Intel Core i7-12650H](https://www.intel.com/content/www/us/en/products/sku/226066/intel-core-i712650h-processor-24m-cache-up-to-4-70-ghz/specifications.html "Specification page for Intel Core i7-12650H"): 2.30 GHz up to 4.70 GHz, 10 cores (6 Performance, 4 Efficient), 16 threads, 24 MB of cache L3;
+- **CPU**: [Intel Core i7-12650H](https://www.intel.com/content/www/us/en/products/sku/226066/intel-core-i712650h-processor-24m-cache-up-to-4-70-ghz/specifications.html "Specification page for Intel Core i7-12650H"), 2.30 GHz up to 4.70 GHz, 10 cores (6 Performance, 4 Efficient), 16 threads, 24 MB of L3 cache
 - **RAM**: DDR5 (4800 MHz), 16 GB
 - **OS**: Windows 11 Home
-
-## Unit Test
-
-To ensure sequential and parallel versions work, the application code is supported by unit tests.<br>
-
-Tests are written through the [GoogleTest](https://github.com/google/googletest "GitHub repository of GoogleTest") framework, configured in the `CMakeLists.txt` located in the [tests](./tests) directory.<br>
-
-Entities' tests (**PixelTest**, **ImageTest**, and **KernelTest**) are quite simple and they just verify the constructor or default constructor behaviour.
-
-> :pencil: **Note**: Assertions uses `EXPECT_EQ` if its failure doesn't affect subsequent tests, or `ASSERT_EQ` if its truthfulness is necessary for the next ones.
-
-Tests for the kernel factory class (**KernelFactoryTest**) aims to checks the validity of kernel attributes' value, in particular of the oddity of the dimsnion of the kernel; then to verify the construction of the kernel respects its type with different orders. Because tests differ only in values, parameterized tests are here used. These checks are done for each type of kernel created, i.e. for each method of the class.<br>
-
-Testing a third-party library is a bad practice in unit testing, so for testing the STB functions a wrapper class has been istantiated, i.e. facade design pattern is applied. This is the reason why **STBImageReader** inherits from the abstract class **ImageReader**: in this way, even if the behaviour of STB changes, the main code will not change, but only the wrapper class. Anyway, tests for the loading mathod uses a simple and well-known JPG image to check if expected values are retrived from the image through the library; tests for the saving method just checks if an JPG image file is created after the library is called (without checking if values are correct, because this should rely on a library itself to read the content). For both methods, tests checks also that an exception is thrown if the path is not correct.<br>
-
-The most important tests for the project are for the image processing algorithms. For the image convolution, pixel values of the transformed image should be in accord to the image and kernel input, manually calcolated through the formula defined in the [introduction](#introduction); some tests forces the transformed image to have out-of-range values for pixels, so that they can check if in-range convertion works. For the edge extention, the new dimensions of the extented image are checked, as well as both old (in the middle) and new (in the edges) pixel values, in accord to the input image and padding. In both functions, tests check that the returned image is a new one.
 
 ## ASAN
 
