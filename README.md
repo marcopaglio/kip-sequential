@@ -12,6 +12,10 @@ This is the *sequential* version of **Kernel Image Processing**, which is a conv
   + [Kernel Types](#kernel-types)
 - [Implementation Details](#implementation-details)
 - [Experimentations](#experimentations)
+- [Further Checks](#further-checks)
+  + [Unit Testing](#unit-testing)
+  + [Address Sanitization](#address-sanitization)
+  + [Profiling](#profiling)
 
 ## Introduction
 
@@ -173,27 +177,6 @@ Kip-sequential is written in **C++** and uses **CMake** as build automation tool
   ```
 
   > :warning: **Warning**: As written in [stb project](https://github.com/nothings/stb/blob/master/README.md "README file of stb GitHub repository"), some security-relevant bugs are discussed in public in Github, so it is strongly recommended to do not use the stb libraries.
-
-### Unit Test
-
-To ensure that both sequential and parallel versions work, the application code is supported by unit tests. Tests are written using the [GoogleTest](https://github.com/google/googletest "GitHub repository of GoogleTest") framework, configured in the `CMakeLists.txt` located in the [tests](./tests) folder:
-- entities' tests (**PixelTest**, **ImageTest** and **KernelTest**) are quite simple and only check the constructor or default constructor behaviour.
-
-  > :pencil: **Note**: Assertions uses `EXPECT_EQ` if its failure doesn't affect subsequent tests, or `ASSERT_EQ` if its truthfulness is necessary for the next ones.
-
-- tests for the kernels building (**KernelFactoryTest**) check for kernel size oddity, and thus that the construction of the kernel respects its type. Since tests for different orders differ only in their values, parameterized tests are used here.
-
-- image processing algorithms contain the most important logic to test (**ImageProcessingTest**):
-  * for `convolution`, the pixel values ​​of the transformed image are calculated by hand through the formula defined in the [Introduction](#introduction); some tests forces the transformed image to have out-of-range values for pixels, so that they can check if in-range convertion works.
-  * for `extendEdge`, it is checked that the value of both the internal pixels and the new pixels on the edges is correct.
-  
-  Tests for both functions also verify that the returned image is new.
-
-- testing a third-party library is a bad practice in unit testing, that's why *stb* functions are wrapped in custom classes, i.e. facade design pattern is applied:
-  * tests for loading use a simple and well-known JPG image to check if expected values are retrived from the image through the library.
-  * tests for saving only check whether a JPG image file is created after the library call (without checking whether values are correct, because reading the contents would rely on the library itself).
-  
-  Tests for both methods also verify that an exception is thrown if the path is incorrect.
 
 ## Experimentations
 
@@ -384,20 +367,42 @@ The relevant details of the hardware used are:
 - **RAM**: DDR5 (4800 MHz), 16 GB
 - **OS**: Windows 11 Home
 
-## ASAN
+## Further Checks
 
-In the main `CmakeLists.txt` few lines of configuration code are inserted to enable the [Google AddressSanitizer](https://github.com/google/sanitizers/wiki/addresssanitizer "GitHub Repository of ASan") tool to check if there are no memory issues:
+### Unit Testing
+
+To ensure that both sequential and parallel versions work, the application code is supported by unit tests. Tests are written using the [GoogleTest](https://github.com/google/googletest "GitHub repository of GoogleTest") framework, configured in the `CMakeLists.txt` located in the [tests](./tests) folder:
+- entities' tests (**PixelTest**, **ImageTest** and **KernelTest**) are quite simple and only check the constructor or default constructor behaviour.
+
+  > :pencil: **Note**: Assertions uses `EXPECT_EQ` if its failure doesn't affect subsequent tests, or `ASSERT_EQ` if its truthfulness is necessary for the next ones.
+
+- tests for the kernels building (**KernelFactoryTest**) check for kernel size oddity, and thus that the construction of the kernel respects its type. Since tests for different orders differ only in their values, parameterized tests are used here.
+
+- image processing algorithms contain the most important logic to test (**ImageProcessingTest**):
+  * for `convolution`, the pixel values ​​of the transformed image are calculated by hand through the formula defined in the [Introduction](#introduction); some tests forces the transformed image to have out-of-range values for pixels, so that they can check if in-range convertion works.
+  * for `extendEdge`, it is checked that the value of both the internal pixels and the new pixels on the edges is correct.
+  
+  Tests for both functions also verify that the returned image is new.
+
+- testing a third-party library is a bad practice in unit testing, that's why *stb* functions are wrapped in custom classes, i.e. facade design pattern is applied:
+  * tests for loading use a simple and well-known JPG image to check if expected values are retrived from the image through the library.
+  * tests for saving only check whether a JPG image file is created after the library call (without checking whether values are correct, because reading the contents would rely on the library itself).
+  
+  Tests for both methods also verify that an exception is thrown if the path is incorrect.
+
+### Address Sanitization
+
+In the main `CMakeLists.txt`, a few lines of configuration code are inserted to enable the [Google AddressSanitizer](https://github.com/google/sanitizers/wiki/addresssanitizer "GitHub Repository of ASan") (ASan) tool to check for memory issues:
 ```
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC" AND USE_ASAN)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreadedDLL")
     add_compile_options(/fsanitize=address /Zi)
 endif()
 ```
-Currently, on Windows, this tool works well only with the MSVC compiler. Even if this project is built with LLVM/Clang, switching to MSVC does not need accommodations other than changing the compiler itself.<br>
+Currently, on Windows, this tool works well only with the MSVC compiler. Even though this project is built with LLVM/Clang, switching to MSVC does not require any adjustments other than changing the compiler itself.<br>
 
-ASan instruments the code and generates an executable that substitute allocation/deallocation methods with its equivalent methods. In this way, memory issues are recognized and errors are print when the executable is executed. By the way, the overhead introduced in the program grows with the code complexity, and the execution time increases. Because this overhead is not always needed, the tool is turned on only when the Cmake option `-DUSE_ASAN=ON` is set in the used profile (e.g. Debug, Release).
+ASan instruments the code and generates an executable that replaces the allocation/deallocation methods with their equivalent methods. This way, memory issues are recognized and errors are printed when the executable is run. However, the overhead introduced in the program grows with the complexity of the code and increases the execution time. Since it is not always needed, the tool is only activated when the CMake option `-DUSE_ASAN=ON` is set in the used profile (e.g. Debug, Release).
 
-
-## Profiler
+### Profiling
 
 TODO
