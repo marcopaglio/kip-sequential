@@ -46,8 +46,8 @@ int main() {
 
         // enlargement
         constexpr unsigned int order = 7;
-        img = ImageProcessing::extendEdge(*img, (order - 1) / 2);
-        std::cout << "Image enlarged to " << img->getWidth() << "x" << img->getHeight() << std::endl;
+        auto extendedImage = ImageProcessing::extendEdge(*img, (order - 1) / 2);
+        std::cout << "Image enlarged to " << extendedImage->getWidth() << "x" << extendedImage->getHeight() << std::endl;
 
 
         for (const auto kernelType : KernelTypes::allTypes) {
@@ -70,7 +70,7 @@ int main() {
             const std::chrono::duration<double> wall_clock_time_start = timer->now();
             std::unique_ptr<Image> outputImage;
             for (unsigned int rep = 0; rep < NUM_REPS; rep++)
-                outputImage = ImageProcessing::convolution(*img, *kernel);
+                outputImage = ImageProcessing::convolution(*extendedImage, *kernel);
             const std::chrono::duration<double> wall_clock_time_end = timer->now();
             const std::chrono::duration<double> wall_clock_time_duration = wall_clock_time_end - wall_clock_time_start;
             std::cout << "Image processed " << NUM_REPS << " times in " << wall_clock_time_duration.count() << " seconds [Wall Clock]" <<
