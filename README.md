@@ -196,7 +196,7 @@ For each kernel type (i.e. `box blur` and `edge detection`) multiple order value
 
 #### Image Dimensions
 
-Tests are run on very large images of random subjects to get more benefits from parallel execution; in fact, parallelization works better if the data is sufficiently large. The selected images can be found in the [input](./src/imgs/input) folder and are called:
+Tests are run on very large images of random subjects to get more benefits from parallel execution; in fact, parallelization works better if the data is sufficiently large. The selected images can be found in the [input](imgs/input) folder and are called:
 - `4K` if the size is 4000x2000 pixels.
 - `5K` if the size is 5000x3000 pixels.
 - `6K` if the size is 6000x4000 pixels.

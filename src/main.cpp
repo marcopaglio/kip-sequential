@@ -38,7 +38,7 @@ int main() {
         STBImageReader imageReader{};
 
         // load img
-        fullPathStream << PROJECT_SOURCE_DIR << "/src/imgs/input/" << imageName << ".jpg";
+        fullPathStream << PROJECT_SOURCE_DIR << "/imgs/input/" << imageName << ".jpg";
         auto img = imageReader.loadRGBImage(fullPathStream.str());
         std::cout << "Image " << img->getWidth() << "x" << img->getHeight() <<
             " loaded from: " << fullPathStream.str() << std::endl;
@@ -77,7 +77,7 @@ int main() {
                 " with an average of " << wall_clock_time_duration.count() / NUM_REPS << " seconds [Wall Clock] per repetition." << std::endl;
 
             // save
-            fullPathStream << PROJECT_SOURCE_DIR << "/src/imgs/output/" << imageName <<
+            fullPathStream << PROJECT_SOURCE_DIR << "/imgs/output/" << imageName <<
                 "_" << kernel->getName() << kernel->getOrder() << ".jpg";
             imageReader.saveJPGImage(*outputImage, fullPathStream.str());
             std::cout << "Image " << outputImage->getWidth() << "x" << outputImage->getHeight() <<
