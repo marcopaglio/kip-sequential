@@ -188,7 +188,7 @@ In C++ this can be done through the standard chrono library with its classes `hi
 
 On Windows I experimented that MSVC (*v.14.4x* under *Visual Studio 2022 v17.0*, with both MSVC and Clang compilers) works with steadiness, therefore `high_resolution_clock` is usable; while MinGW (*v.11.0 w64*) doesn't guarantee steadiness, hence `steady_clock` is better.<br>
 
-Given the aim of the project, the timer starts just before the `convolution` method call and ends as soon as the processing finishes. Actually, each image is processed multiple times (e.g. 3) to reduce external system overheads and get a more reliable time measurement. Other irrelevant parts of the main code, such as loading/storing images and kernel construction, are not time-measured.
+Given the aim of the project, the timer starts just before the `convolution` method call and ends as soon as the processing finishes. Actually, each image is processed `3` times to reduce external system overheads and get a more reliable time measurement. Other irrelevant parts of the main code, such as loading/storing images and kernel construction, are not time-measured.
 
 #### Kernel Dimensions
 
@@ -379,8 +379,8 @@ To ensure that both sequential and parallel versions work, the application code 
 - tests for the kernels building (**KernelFactoryTest**) check for kernel size oddity, and thus that the construction of the kernel respects its type. Since tests for different orders differ only in their values, parameterized tests are used here.
 
 - image processing algorithms contain the most important logic to test (**ImageProcessingTest**):
-  * for `convolution`, the pixel values ​​of the transformed image are calculated by hand through the formula defined in the [Introduction](#introduction); some tests forces the transformed image to have out-of-range values for pixels, so that they can check if in-range convertion works.
   * for `extendEdge`, it is checked that the value of both the internal pixels and the new pixels on the edges is correct.
+  * for `convolution`, the pixel values ​​of the transformed image are calculated by hand through the formula defined in the [Introduction](#introduction); some tests forces the transformed image to have out-of-range values for pixels, so that they can check if in-range convertion works.
   
   Tests for both functions also verify that the returned image is new.
 
