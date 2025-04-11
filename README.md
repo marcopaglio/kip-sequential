@@ -191,7 +191,7 @@ Tests are done on very large images of random subjects in order to obtain more a
 - `6K-1`, `6K-2`, `6K-3` which have dimension 6000x4000 pixels;
 - `7K-1`, `7K-2`, `7K-3` which have dimension 7000x5000 pixels.
 
-They can be found in the [input](./src/imgs/input) folder.<br>
+They can be found in the [input](imgs/input) folder.<br>
 
 Time measuraments of filtering with the different kernel type on the different images are summerized in the following table. Used hardware is:
 - [Intel Core i7-12650H](https://www.intel.com/content/www/us/en/products/sku/226066/intel-core-i712650h-processor-24m-cache-up-to-4-70-ghz/specifications.html "Specification page for Intel Core i7-12650H"): 2.30 GHz up to 4.70 GHz, 10 cores (6 Performance, 4 Efficient), 16 threads, 24 MB of cache L3;
