@@ -15,16 +15,16 @@ ImageProcessing::ImageProcessing(EdgeHandler& edgeHandler) : edgeHandler(edgeHan
 
 ImageProcessing::~ImageProcessing() = default;
 
-std::unique_ptr<Image> ImageProcessing::convolution(const Image &image, const Kernel &kernel) {
+std::unique_ptr<Image> ImageProcessing::convolution(const Image &image, const Kernel &kernel) const {
     const unsigned int order = kernel.getOrder();
-    const auto preparedImage = edgeHandler.prepareImage(image, (order - 1) / 2);
-
-    const auto originalData = preparedImage->getData();
     const auto kernelWeights = kernel.getWeights();
 
-    const unsigned int outputHeight = preparedImage->getHeight() - (order - 1);
-    const unsigned int outputWidth = preparedImage->getWidth() - (order - 1);
+    const unsigned int padding = (order - 1) / 2;
 
+    const auto preparedImage = edgeHandler.prepareImage(image, padding);
+    const auto originalData = preparedImage->getData();
+    const unsigned int outputHeight = preparedImage->getHeight() - 2 * padding;
+    const unsigned int outputWidth = preparedImage->getWidth() - 2 * padding;
 
     std::vector pixels(outputHeight, std::vector<Pixel>(outputWidth));
     for (unsigned int y = 0; y < outputHeight; y++) {

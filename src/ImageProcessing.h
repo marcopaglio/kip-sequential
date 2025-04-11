@@ -12,7 +12,7 @@ public:
     explicit ImageProcessing(EdgeHandler& edgeHandler);
     ~ImageProcessing();
 
-    std::unique_ptr<Image> convolution(const Image& image, const Kernel& kernel);
+    std::unique_ptr<Image> convolution(const Image& image, const Kernel& kernel) const;
 
 private:
     EdgeHandler& edgeHandler;
