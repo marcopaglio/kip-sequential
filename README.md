@@ -19,7 +19,7 @@ This is the *sequential* version of **Kernel Image Processing**, which is a conv
 
 ## Introduction
 
-Kernel Image Processing is used to enhance, filter, and analyze images. It involves applying a small squared matrix of odd order, known as a **kernel**, to a 2D image to perform transformations, such as blurring, sharpening, embossing, edge detection, and more. This is accomplished by doing a **convolution** between the kernel and an image, that is:
+Kernel Image Processing is used to enhance, filter, and analyze images. It involves applying a small square matrix of odd order, known as a **kernel**, to a 2D image to perform transformations, such as blurring, sharpening, embossing, edge detection, and more. This is accomplished by doing a **convolution** between the kernel and an image, that is:
 
 1. The kernel moves across the image pixel by pixel.
 2. At each position, it multiplies its values with the corresponding pixel values in the image.
