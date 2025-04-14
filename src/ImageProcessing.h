@@ -34,7 +34,7 @@ public:
      * @param kernel The kernel used for the convolution.
      * @return A unique pointer to a new Image object resulting from the convolution operation.
      */
-    std::unique_ptr<Image> convolution(const Image& image, const Kernel& kernel) const;
+    [[nodiscard]] std::unique_ptr<Image> convolution(const Image& image, const Kernel& kernel) const;
 
 private:
     /**
