@@ -17,6 +17,8 @@ public:
 
     /**
      * Default destructor.
+     *
+     * It is declared as virtual to ensure that the proper destructor is called for derived classes.
      */
     virtual ~ImageReader();
 
