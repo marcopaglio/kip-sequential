@@ -180,21 +180,9 @@ Kip-sequential is written in **C++** and uses **CMake** as build automation tool
 
 ## Experimentations
 
-#### Time Measurement
+### Experiment Variables
 
-The goal of the project is to measure the sequential execution time of Kernel Image Processing and then to compare it with its parallel versions. The comparison works well only if the **wall-clock time** is used, since the *processor time* is about the same in both sequential and parallel versions.<br>
-
-In C++ this can be done through the standard chrono library with its classes `high_resolution_clock` and `steady_clock`. The first one is more precise because uses the smallest tick period provided by the implementation, but to have results more consistent and reproducible it requires the steadiness of the clock, i.e. the time between ticks should be always constant even in case of some external clock adjustment. The *C++ toolchain* (MSVC, MinGW, etc) choosen for the platform doesn't always work stably, so, as an alternative, the `steady_clock` forces to use monotonic clock but it might be less sensitive than `high_resolution_clock`. To use the best available one, in the main program a simple check is done through the `std::chrono::high_resolution_clock::is_steady` function.<br>
-
-On Windows I experimented that MSVC (*v.14.4x* under *Visual Studio 2022 v17.0*, with both MSVC and Clang compilers) works with steadiness, therefore `high_resolution_clock` is usable; while MinGW (*v.11.0 w64*) doesn't guarantee steadiness, hence `steady_clock` is better.<br>
-
-Given the aim of the project, the timer starts just before the `convolution` method call and ends as soon as the processing finishes. Actually, each image is processed `3` times to reduce external system overheads and get a more reliable time measurement. Other irrelevant parts of the main code, such as loading/storing images and kernel construction, are not time-measured.
-
-#### Kernel Dimensions
-
-For each kernel type (i.e. `box blur` and `edge detection`) multiple order values are used: `7`, `13`, `19`, `25`.
-
-#### Image Dimensions
+#### Images
 
 Tests are run on very large images of random subjects to get more benefits from parallel execution; in fact, parallelization works better if the data is sufficiently large. The selected images can be found in the [input](imgs/input) folder and are called:
 - `4K` if the size is 4000x2000 pixels.
@@ -202,14 +190,38 @@ Tests are run on very large images of random subjects to get more benefits from 
 - `6K` if the size is 6000x4000 pixels.
 - `7K` if the size is 7000x5000 pixels.
 
-#### Experimental Results
+For each image size, 3 different images are used in order to evaluate the performance on different contents.
+
+#### Kernels
+
+For each kernel type (i.e. `box blur` and `edge detection`) multiple order values are used: `7`, `13`, `19`, `25`.
+
+### Time Measurement
+
+The goal of the project is to measure the sequential execution time of Kernel Image Processing and then to compare it with its parallel versions. The comparison works well only if the **wall-clock time** is used, since the *processor time* is about the same in both sequential and parallel versions.<br>
+
+In C++ this can be done through the standard chrono library with its classes `high_resolution_clock` and `steady_clock`. The first one is more precise because uses the smallest tick period provided by the implementation, but to have results more consistent and reproducible it requires the steadiness of the clock, i.e. the time between ticks should be always constant even in case of some external clock adjustment. The *C++ toolchain* (MSVC, MinGW, etc) choosen for the platform doesn't always work stably, so, as an alternative, the `steady_clock` forces to use monotonic clock but it might be less sensitive than `high_resolution_clock`. To use the best available one, in the main program a simple check is done through the `std::chrono::high_resolution_clock::is_steady` function.<br>
+
+> :pencil: **Note**: On Windows I experimented that MSVC (*v.14.4x* under *Visual Studio 2022 v17.0*, with both MSVC and Clang compilers) works with steadiness, therefore `high_resolution_clock` is usable; while MinGW (*v.11.0 w64*) doesn't guarantee steadiness, hence `steady_clock` is better.<br>
+
+#### What to Measure
+
+Given the aim of the project, the timer starts just before the `convolution` method call and ends as soon as the processing finishes. Other irrelevant parts of the main code, such as loading/storing images and kernel construction, are not time-measured.
+
+#### Reduce Overhead
+
+External or background system processes can influence experiments. To get a more reliable time measurement, two strategies are used:
+- Each image is processed `3` times, and the average time is taken. 
+- After processing each image with all kernel types of the same size, the execution is paused (using the sleep command) so that other processes can be carried on and thus affect time measurements less. The idle time is `imageQuality + order / 2` seconds, where `imageQuality` is the high definition number of the image (e.g. it counts 4 seconds for `4K` images). It is based on both image and kernel size, but the latter is more decisive than the former in terms of execution time.
+
+### Experimental Results
 
 The following table summarizes the temporal measurements of convolutions on different images with different kernels.
 
 <table>
   <thead>
     <tr>
-      <th colspan="3" rowspan="3">Execution Time</th>
+      <th colspan="3" rowspan="3">Execution Time (Debug mode)</th>
       <th colspan="12">Image Dimension</th>
     </tr>
     <tr>
@@ -360,7 +372,172 @@ The following table summarizes the temporal measurements of convolutions on diff
   </tbody>
 </table>
 
-#### Hardware Details
+<table>
+  <thead>
+    <tr>
+      <th colspan="3" rowspan="3">Execution Time (Release mode)</th>
+      <th colspan="12">Image Dimension</th>
+    </tr>
+    <tr>
+      <th colspan="3">4K</th>
+      <th colspan="3">5K</th>
+      <th colspan="3">6K</th>
+      <th colspan="3">7K</th>
+    </tr>
+    <tr>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="8"><strong>Kernel Dimension</strong></td>
+      <td rowspan="4"><strong>Box Blurring</strong></td>
+      <td>7</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>13</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>19</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>25</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td rowspan="4"><strong>Edge Detection</strong></td>
+      <td>7</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>13</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>19</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>25</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+#### Save to File
+
+This project records lots of time measurements (96 experiments, i.e. 3 image types x 4 image sizes x 2 kernel types x 4 kernel sizes), therefore saving data in a textual file is desirable. The best choice is the CVS (*Comma-Separated Values*) file, which can be used to generate diagrams programmatically. In particular, for each experiment the following fields are recorded:
+- Input image name
+- Input image dimensions
+- Kernel type
+- Kernel size
+- Number of repetitions
+- Total convolution time (in seconds)
+- Convolution time per repetition (in seconds)
+
+### Hardware Details
 
 The relevant details of the hardware used are:
 - **CPU**: [Intel Core i7-12650H](https://www.intel.com/content/www/us/en/products/sku/226066/intel-core-i712650h-processor-24m-cache-up-to-4-70-ghz/specifications.html "Specification page for Intel Core i7-12650H"), 2.30 GHz up to 4.70 GHz, 10 cores (6 Performance, 4 Efficient), 16 threads, 24 MB of L3 cache
