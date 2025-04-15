@@ -1,5 +1,7 @@
 #include <iostream>
 #include <sstream>
+#include <fstream>
+#include <thread>
 
 #include "HighResolutionTimer.h"
 #include "Image.h"
@@ -11,8 +13,11 @@
 #include "Timer.h"
 
 #define NUM_REPS 3
+#define MIN_IMG_QUALITY 4
+#define MAX_IMG_QUALITY 7
+#define NUM_IMG_QUALITY 3
 
-namespace KernelTypes {
+namespace KernelInfos {
     constexpr unsigned int numKernelTypes = 2;
 
     enum KernelTypes {
@@ -21,9 +26,13 @@ namespace KernelTypes {
     };
 
     static KernelTypes allTypes[numKernelTypes] = {box_blur, edge_detection};
+
+    constexpr unsigned int numKernelOrders = 4;
+    static unsigned int allOrders[numKernelOrders] = {7, 13, 19, 25};
 }
 
 int main() {
+    STBImageReader imageReader{};
     std::unique_ptr<Timer> timer;
     if constexpr (std::chrono::high_resolution_clock::is_steady)
         timer = std::make_unique<HighResolutionTimer>();
@@ -31,59 +40,87 @@ int main() {
         timer = std::make_unique<SteadyTimer>();
 
     try {
-        constexpr unsigned int imageQuality = 4;
-        constexpr unsigned int imageNum = 1;
-        const std::string imageName = std::to_string(imageQuality) + "K-" + std::to_string(imageNum);
+        const auto cvsName = "kip_sequential.csv";
+        std::ofstream csvFile(cvsName);
+        csvFile << "ImageName,ImageDimension,KernelName,KernelDimension,NumReps,TotalTime_s,TimePerRep_s" << "\n";
+
         std::stringstream fullPathStream;
-        STBImageReader imageReader{};
 
-        // load img
-        fullPathStream << PROJECT_SOURCE_DIR << "/imgs/input/" << imageName << ".jpg";
-        auto img = imageReader.loadRGBImage(fullPathStream.str());
-        std::cout << "Image " << img->getWidth() << "x" << img->getHeight() <<
-            " loaded from: " << fullPathStream.str() << std::endl;
-        fullPathStream.str(std::string());
+        for (unsigned int imageQuality = MIN_IMG_QUALITY; imageQuality <= MAX_IMG_QUALITY; imageQuality++) {
+            for (unsigned int imageNum = 1; imageNum <= NUM_IMG_QUALITY; imageNum++) {
+                const std::string imageName = std::to_string(imageQuality) + "K-" + std::to_string(imageNum);
 
-        // enlargement
-        constexpr unsigned int order = 7;
-        auto extendedImage = ImageProcessing::extendEdge(*img, (order - 1) / 2);
-        std::cout << "Image enlarged to " << extendedImage->getWidth() << "x" << extendedImage->getHeight() << std::endl;
+                // load img
+                fullPathStream << PROJECT_SOURCE_DIR << "/imgs/input/" << imageName << ".jpg";
+                const auto img = imageReader.loadRGBImage(fullPathStream.str());
+                std::cout << "Image " << imageName << " (" << img->getWidth() << "x" << img->getHeight() <<
+                    ") loaded from: " << fullPathStream.str() << std::endl;
+                fullPathStream.str(std::string());
 
+                for (const unsigned int order : KernelInfos::allOrders) {
+                    // enlargement
+                    const auto extendedImage = ImageProcessing::extendEdge(*img, (order - 1) / 2);
+                    std::cout << "Image "  << imageName << " enlarged to " <<
+                        extendedImage->getWidth() << "x" << extendedImage->getHeight() << std::endl;
 
-        for (const auto kernelType : KernelTypes::allTypes) {
-            // create kernel
-            std::unique_ptr<Kernel> kernel;
-            switch (kernelType) {
-                case KernelTypes::box_blur:
-                    kernel = KernelFactory::createBoxBlurKernel(order);
-                    break;
-                case KernelTypes::edge_detection:
-                    kernel = KernelFactory::createEdgeDetectionKernel(order);
-                    break;
-                default:
-                    throw std::invalid_argument("Invalid kernel type");
+                    for (const auto kernelType : KernelInfos::allTypes) {
+                        // create kernel
+                        std::unique_ptr<Kernel> kernel;
+                        switch (kernelType) {
+                            case KernelInfos::box_blur:
+                                kernel = KernelFactory::createBoxBlurKernel(order);
+                                break;
+                            case KernelInfos::edge_detection:
+                                kernel = KernelFactory::createEdgeDetectionKernel(order);
+                                break;
+                            default:
+                                throw std::invalid_argument("Invalid kernel type");
+                        }
+                        std::cout << "Kernel \"" << kernel->getName() << "\" " << kernel->getOrder() << "x" << kernel->getOrder() <<
+                            " created." << std::endl;
+
+                        // transform
+                        const std::chrono::duration<double> wall_clock_time_start = timer->now();
+                        std::unique_ptr<Image> outputImage;
+                        for (unsigned int rep = 0; rep < NUM_REPS; rep++)
+                            outputImage = ImageProcessing::convolution(*extendedImage, *kernel);
+                        const std::chrono::duration<double> wall_clock_time_end = timer->now();
+                        const std::chrono::duration<double> wall_clock_time_duration = wall_clock_time_end - wall_clock_time_start;
+                        std::cout << "Image processed " << NUM_REPS << " times in " << wall_clock_time_duration.count() << " seconds [Wall Clock]" <<
+                            " with an average of " << wall_clock_time_duration.count() / NUM_REPS << " seconds [Wall Clock] per repetition." << std::endl;
+
+                        // save
+                        fullPathStream << PROJECT_SOURCE_DIR << "/imgs/output/" << imageName <<
+                            "_" << kernel->getName() << kernel->getOrder() << ".jpg";
+                        imageReader.saveJPGImage(*outputImage, fullPathStream.str());
+                        std::cout << "Image " << outputImage->getWidth() << "x" << outputImage->getHeight() <<
+                            " saved at: " << fullPathStream.str() << std::endl << std::endl;
+                        fullPathStream.str(std::string());
+
+                        // csv record
+                        csvFile << imageName << ","
+                                << img->getWidth() << "x" << img->getHeight() << ","
+                                << kernel->getName() << ","
+                                << order << ","
+                                << NUM_REPS << ","
+                                << wall_clock_time_duration.count() << ","
+                                << wall_clock_time_duration.count() / NUM_REPS
+                                << "\n";
+                    }
+
+                    // idle time
+                    if (imageQuality != MAX_IMG_QUALITY ||
+                        order != KernelInfos::allOrders[KernelInfos::numKernelOrders - 1]) {
+                        unsigned int idleTime = imageQuality + order / 2;
+                        std::cout << "Take a pause of " << idleTime << " seconds... ";
+                        std::this_thread::sleep_for(std::chrono::seconds(idleTime));
+                        std::cout << "finished!" << std::endl << std::endl;
+                    }
+                }
             }
-            std::cout << "Kernel \"" << kernel->getName() << "\" " << kernel->getOrder() << "x" << kernel->getOrder() <<
-                " created." << std::endl;
-
-            // transform
-            const std::chrono::duration<double> wall_clock_time_start = timer->now();
-            std::unique_ptr<Image> outputImage;
-            for (unsigned int rep = 0; rep < NUM_REPS; rep++)
-                outputImage = ImageProcessing::convolution(*extendedImage, *kernel);
-            const std::chrono::duration<double> wall_clock_time_end = timer->now();
-            const std::chrono::duration<double> wall_clock_time_duration = wall_clock_time_end - wall_clock_time_start;
-            std::cout << "Image processed " << NUM_REPS << " times in " << wall_clock_time_duration.count() << " seconds [Wall Clock]" <<
-                " with an average of " << wall_clock_time_duration.count() / NUM_REPS << " seconds [Wall Clock] per repetition." << std::endl;
-
-            // save
-            fullPathStream << PROJECT_SOURCE_DIR << "/imgs/output/" << imageName <<
-                "_" << kernel->getName() << kernel->getOrder() << ".jpg";
-            imageReader.saveJPGImage(*outputImage, fullPathStream.str());
-            std::cout << "Image " << outputImage->getWidth() << "x" << outputImage->getHeight() <<
-                " saved at: " << fullPathStream.str() << std::endl << std::endl;
-            fullPathStream.str(std::string());
         }
+        csvFile.close();
+        std::cout << "Data saved on " << CMAKE_BINARY_DIR << "/" << cvsName << std::endl;
 
     } catch (const std::exception& ex) {
         std::cerr << ex.what() << std::endl;

@@ -38,6 +38,7 @@ add_executable(kip_sequential_main src/main.cpp)
 target_link_libraries(kip_sequential_main kip_sequential_lib)
 
 add_compile_definitions(PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
+add_compile_definitions(CMAKE_BINARY_DIR="${CMAKE_BINARY_DIR}")
 
 enable_testing()
 
