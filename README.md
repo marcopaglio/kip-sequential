@@ -12,6 +12,10 @@ This is the *sequential* version of **Kernel Image Processing**, which is a conv
   + [Kernel Types](#kernel-types)
 - [Implementation Details](#implementation-details)
 - [Experimentations](#experimentations)
+  + [Experiment Variables](#experiment-variables)
+  + [Time Measurement](#time-measurement)
+  + [Experimental Results](#experimental-results)
+  + [Hardware Details](#hardware-details)
 - [Further Checks](#further-checks)
   + [Unit Testing](#unit-testing)
   + [Address Sanitization](#address-sanitization)
@@ -221,7 +225,7 @@ The following table summarizes the temporal measurements of convolutions on diff
 <table>
   <thead>
     <tr>
-      <th colspan="3" rowspan="3">Execution Time (Debug mode)</th>
+      <th colspan="3" rowspan="3">Execution Time<br>(Debug mode)</th>
       <th colspan="12">Image Dimension</th>
     </tr>
     <tr>
@@ -375,7 +379,7 @@ The following table summarizes the temporal measurements of convolutions on diff
 <table>
   <thead>
     <tr>
-      <th colspan="3" rowspan="3">Execution Time (Release mode)</th>
+      <th colspan="3" rowspan="3">Execution Time<br>(Release mode)</th>
       <th colspan="12">Image Dimension</th>
     </tr>
     <tr>
