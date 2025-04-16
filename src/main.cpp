@@ -12,42 +12,44 @@
 #include "SteadyTimer.h"
 #include "Timer.h"
 
-#define NUM_REPS 3
-#define MIN_IMG_QUALITY 4
-#define MAX_IMG_QUALITY 7
-#define NUM_IMG_QUALITY 3
-
 namespace KernelInfos {
-    constexpr unsigned int numKernelTypes = 2;
-
     enum KernelTypes {
         box_blur,
         edge_detection
     };
 
-    static KernelTypes allTypes[numKernelTypes] = {box_blur, edge_detection};
+    static KernelTypes allTypes[] = {box_blur, edge_detection};
+    constexpr unsigned int numKernelTypes = sizeof(allTypes) / sizeof(KernelTypes);
 
-    constexpr unsigned int numKernelOrders = 4;
-    static unsigned int allOrders[numKernelOrders] = {7, 13, 19, 25};
+    static unsigned int allOrders[] = {7, 13, 19, 25};
+    constexpr unsigned int numKernelOrders = sizeof(allOrders) / sizeof(unsigned int);
 }
 
 int main() {
-    STBImageReader imageReader{};
-    std::unique_ptr<Timer> timer;
-    if constexpr (std::chrono::high_resolution_clock::is_steady)
-        timer = std::make_unique<HighResolutionTimer>();
-    else
-        timer = std::make_unique<SteadyTimer>();
+    constexpr unsigned int numReps = 3;
+    constexpr unsigned int minImageQuality = 4;
+    constexpr unsigned int maxImageQuality = 7;
+    constexpr unsigned int numImageQuality = 3;
+    const std::string cvsName = "kip_sequential.csv";
 
     try {
-        const auto cvsName = "kip_sequential.csv";
+        // setup timer
+        std::unique_ptr<Timer> timer;
+        if constexpr (std::chrono::high_resolution_clock::is_steady)
+            timer = std::make_unique<HighResolutionTimer>();
+        else
+            timer = std::make_unique<SteadyTimer>();
+
+        // setup csv
         std::ofstream csvFile(cvsName);
         csvFile << "ImageName,ImageDimension,KernelName,KernelDimension,NumReps,TotalTime_s,TimePerRep_s" << "\n";
 
+        // setup image reader
+        STBImageReader imageReader{};
         std::stringstream fullPathStream;
 
-        for (unsigned int imageQuality = MIN_IMG_QUALITY; imageQuality <= MAX_IMG_QUALITY; imageQuality++) {
-            for (unsigned int imageNum = 1; imageNum <= NUM_IMG_QUALITY; imageNum++) {
+        for (unsigned int imageQuality = minImageQuality; imageQuality <= maxImageQuality; imageQuality++) {
+            for (unsigned int imageNum = 1; imageNum <= numImageQuality; imageNum++) {
                 const std::string imageName = std::to_string(imageQuality) + "K-" + std::to_string(imageNum);
 
                 // load img
@@ -82,12 +84,12 @@ int main() {
                         // transform
                         const std::chrono::duration<double> wall_clock_time_start = timer->now();
                         std::unique_ptr<Image> outputImage;
-                        for (unsigned int rep = 0; rep < NUM_REPS; rep++)
+                        for (unsigned int rep = 0; rep < numReps; rep++)
                             outputImage = ImageProcessing::convolution(*extendedImage, *kernel);
                         const std::chrono::duration<double> wall_clock_time_end = timer->now();
                         const std::chrono::duration<double> wall_clock_time_duration = wall_clock_time_end - wall_clock_time_start;
-                        std::cout << "Image processed " << NUM_REPS << " times in " << wall_clock_time_duration.count() << " seconds [Wall Clock]" <<
-                            " with an average of " << wall_clock_time_duration.count() / NUM_REPS << " seconds [Wall Clock] per repetition." << std::endl;
+                        std::cout << "Image processed " << numReps << " times in " << wall_clock_time_duration.count() << " seconds [Wall Clock]" <<
+                            " with an average of " << wall_clock_time_duration.count() / numReps << " seconds [Wall Clock] per repetition." << std::endl;
 
                         // save
                         fullPathStream << PROJECT_SOURCE_DIR << "/imgs/output/" << imageName <<
@@ -102,14 +104,14 @@ int main() {
                                 << img->getWidth() << "x" << img->getHeight() << ","
                                 << kernel->getName() << ","
                                 << order << ","
-                                << NUM_REPS << ","
+                                << numReps << ","
                                 << wall_clock_time_duration.count() << ","
-                                << wall_clock_time_duration.count() / NUM_REPS
+                                << wall_clock_time_duration.count() / numReps
                                 << "\n";
                     }
 
                     // idle time
-                    if (imageQuality != MAX_IMG_QUALITY ||
+                    if (imageQuality != maxImageQuality ||
                         order != KernelInfos::allOrders[KernelInfos::numKernelOrders - 1]) {
                         unsigned int idleTime = imageQuality + order / 2;
                         std::cout << "Take a pause of " << idleTime << " seconds... ";
