@@ -2,7 +2,7 @@
 
 This is the *sequential* version of **Kernel Image Processing**, which is a convolution-based filtering applied to 2D images using a variable size kernel. Parallelized versions of kip-sequential can be found at:
 
-- [kip-parallel-openMP](https://github.com/marcopaglio/kip-parallel-openMP "Repository of kip-parallel-openMP")
+- [kip-parallel-OpenMP](https://github.com/marcopaglio/kip-parallel-openMP "Repository of kip-parallel-OpenMP")
 - [kip-parallel-CUDA](TODO "Repository of kip-parallel-CUDA")
 
 ## Table of Contents
@@ -184,25 +184,27 @@ Kip-sequential is written in **C++** and uses **CMake** as build automation tool
 
 ## Experimentations
 
+The goal of the project is to measure the sequential execution time of Kernel Image Processing and then to compare it with its parallel versions.
+
 ### Experiment Variables
 
 #### Images
 
-Tests are run on very large images of random subjects to get more benefits from parallel execution; in fact, parallelization works better if the data is sufficiently large. The selected images can be found in the [input](imgs/input) folder and are called:
+Tests are run on very large images to get more benefits from parallel execution; in fact, parallelization works better if the data is sufficiently large. The selected images can be found in the [input](imgs/input) folder and are called according to their *quality*:
 - `4K` if the size is 4000x2000 pixels.
 - `5K` if the size is 5000x3000 pixels.
 - `6K` if the size is 6000x4000 pixels.
 - `7K` if the size is 7000x5000 pixels.
 
-For each image size, 3 different images are used in order to evaluate the performance on different contents.
+For each image size, 3 different images are used in order to evaluate the performance on different and random subjects.
 
 #### Kernels
 
-For each kernel type (i.e. `box blur` and `edge detection`) multiple order values are used: `7`, `13`, `19`, `25`.
+For each kernel type (i.e. `box blur` and `edge detection`) multiple *order* values are used: `7`, `13`, `19`, `25`. These affect the number of pixels that must be processed to create each new pixel in the transformed image, so they are more decisive than the image size in terms of execution time.
 
 ### Time Measurement
 
-The goal of the project is to measure the sequential execution time of Kernel Image Processing and then to compare it with its parallel versions. The comparison works well only if the **wall-clock time** is used, since the *processor time* is about the same in both sequential and parallel versions.<br>
+The comparison works well only if the **wall-clock time** is used, since the *processor time* is about the same in both sequential and parallel versions.<br>
 
 In C++ this can be done through the standard chrono library with its classes `high_resolution_clock` and `steady_clock`. The first one is more precise because uses the smallest tick period provided by the implementation, but to have results more consistent and reproducible it requires the steadiness of the clock, i.e. the time between ticks should be always constant even in case of some external clock adjustment. The *C++ toolchain* (MSVC, MinGW, etc) choosen for the platform doesn't always work stably, so, as an alternative, the `steady_clock` forces to use monotonic clock but it might be less sensitive than `high_resolution_clock`. To use the best available one, in the main program a simple check is done through the `std::chrono::high_resolution_clock::is_steady` function.<br>
 
@@ -216,11 +218,11 @@ Given the aim of the project, the timer starts just before the `convolution` met
 
 External or background system processes can influence experiments. To get a more reliable time measurement, two strategies are used:
 - Each image is processed `3` times, and the average time is taken. 
-- After processing each image with all kernel types of the same size, the execution is paused (using the sleep command) so that other processes can be carried on and thus affect time measurements less. The idle time is `imageQuality + order / 2` seconds, where `imageQuality` is the high definition number of the image (e.g. it counts 4 seconds for `4K` images). It is based on both image and kernel size, but the latter is more decisive than the former in terms of execution time.
+- After processing each image with all kernel types of the same size, the execution is paused (using the *sleep* command) so that other processes can be carried on and thus affect time measurements less. The idle time is `imageQuality + order / 2` seconds, where `imageQuality` is the high definition number of the image (e.g. it counts 4 seconds for `4K` images).
 
 ### Experimental Results
 
-The following table summarizes the temporal measurements of convolutions on different images with different kernels.
+The following tables summarizes the temporal measurements of convolutions on different images with different kernels, measured in both debug and release mode.
 
 <table>
   <thead>
