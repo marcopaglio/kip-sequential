@@ -253,127 +253,130 @@ The following tables summarizes the temporal measurements of convolutions on dif
   </thead>
   <tbody>
     <tr>
-      <td rowspan="8"><strong>Kernel Dimension</strong></td>
+      <td rowspan="9"><strong>Kernel Dimension</strong></td>
       <td rowspan="4"><strong>Box Blurring</strong></td>
-      <td>7</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td><strong>7</strong></td>
+      <td>3.82795</td>
+      <td>3.64721</td>
+      <td>3.67625</td>
+      <td>14.3222</td>
+      <td>6.8883</td>
+      <td>16.8814</td>
+      <td>11.0175</td>
+      <td>16.5867</td>
+      <td>23.2189</td>
+      <td>16.0264</td>
+      <td>16.5054</td>
+      <td>16.4069</td>
     </tr>
     <tr>
-      <td>13</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td><strong>13</strong></td>
+      <td>12.1591</td>
+      <td>11.7018</td>
+      <td>11.8204</td>
+      <td>49.7128</td>
+      <td>48.2678</td>
+      <td>56.4534</td>
+      <td>36.1269</td>
+      <td>78.8835</td>
+      <td>61.2037</td>
+      <td>51.5812</td>
+      <td>51.8145</td>
+      <td>51.5229</td>
     </tr>
     <tr>
-      <td>19</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td><strong>19</strong></td>
+      <td>24.3588</td>
+      <td>24.6647</td>
+      <td>36.0659</td>
+      <td>102.098</td>
+      <td>103.386</td>
+      <td>108.489</td>
+      <td>75.0609</td>
+      <td>166.485</td>
+      <td>72.3321</td>
+      <td>106.96</td>
+      <td>107.461</td>
+      <td>107.23</td>
     </tr>
     <tr>
-      <td>25</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td><strong>25</strong></td>
+      <td>42.1691</td>
+      <td>42.3499</td>
+      <td>92.7708</td>
+      <td>124.779</td>
+      <td>155.358</td>
+      <td>190.026</td>
+      <td>192.884</td>
+      <td>289.44</td>
+      <td>125.872</td>
+      <td>183.449</td>
+      <td>183.899</td>
+      <td>183.78</td>
+    </tr> 
+    <tr>
+      <td colspan="14"></td>
     </tr>
     <tr>
       <td rowspan="4"><strong>Edge Detection</strong></td>
-      <td>7</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td><strong>7</strong></td>
+      <td>3.90481</td>
+      <td>3.73811</td>
+      <td>3.71947</td>
+      <td>14.2113</td>
+      <td>7.16701</td>
+      <td>15.4881</td>
+      <td>11.3286</td>
+      <td>14.9823</td>
+      <td>22.4919</td>
+      <td>16.3514</td>
+      <td>16.5471</td>
+      <td>16.6616</td>
     </tr>
     <tr>
-      <td>13</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td><strong>13</strong></td>
+      <td>12.0007</td>
+      <td>11.7334</td>
+      <td>11.9763</td>
+      <td>47.0423</td>
+      <td>49.6171</td>
+      <td>52.1098</td>
+      <td>35.9861</td>
+      <td>77.8714</td>
+      <td>34.3366</td>
+      <td>51.6724</td>
+      <td>51.6228</td>
+      <td>51.7338</td>
     </tr>
     <tr>
-      <td>19</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td><strong>19</strong></td>
+      <td>24.3209</td>
+      <td>24.6179</td>
+      <td>54.0111</td>
+      <td>105.43</td>
+      <td>102.977</td>
+      <td>113.657</td>
+      <td>74.3153</td>
+      <td>151.77</td>
+      <td>72.5981</td>
+      <td>106.747</td>
+      <td>106.773</td>
+      <td>106.392</td>
     </tr>
     <tr>
-      <td>25</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td><strong>25</strong></td>
+      <td>41.8965</td>
+      <td>42.2515</td>
+      <td>92.7604</td>
+      <td>77.3546</td>
+      <td>180.539</td>
+      <td>118.398</td>
+      <td>292.527</td>
+      <td>285.405</td>
+      <td>124.555</td>
+      <td>181.092</td>
+      <td>182.063</td>
+      <td>181.646</td>
     </tr>
   </tbody>
 </table>
@@ -407,127 +410,130 @@ The following tables summarizes the temporal measurements of convolutions on dif
   </thead>
   <tbody>
     <tr>
-      <td rowspan="8"><strong>Kernel Dimension</strong></td>
+      <td rowspan="9"><strong>Kernel Dimension</strong></td>
       <td rowspan="4"><strong>Box Blurring</strong></td>
-      <td>7</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td><strong>7</strong></td>
+      <td>1.63491</td>
+      <td>1.60292</td>
+      <td>1.59928</td>
+      <td>3.09233</td>
+      <td>2.99461</td>
+      <td>2.9685</td>
+      <td>4.78064</td>
+      <td>4.7717</td>
+      <td>4.74233</td>
+      <td>6.99629</td>
+      <td>6.86251</td>
+      <td>6.9645</td>
     </tr>
     <tr>
-      <td>13</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td><strong>13</strong></td>
+      <td>4.21743</td>
+      <td>4.21682</td>
+      <td>4.2429</td>
+      <td>7.90956</td>
+      <td>7.89317</td>
+      <td>7.86825</td>
+      <td>12.6152</td>
+      <td>12.62</td>
+      <td>12.6199</td>
+      <td>18.4308</td>
+      <td>18.2844</td>
+      <td>18.4075</td>
     </tr>
     <tr>
-      <td>19</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td><strong>19</strong></td>
+      <td>7.93542</td>
+      <td>7.91668</td>
+      <td>7.994</td>
+      <td>14.8512</td>
+      <td>14.8379</td>
+      <td>14.8091</td>
+      <td>23.7447</td>
+      <td>23.713</td>
+      <td>23.7582</td>
+      <td>34.5979</td>
+      <td>34.4332</td>
+      <td>34.4969</td>
     </tr>
     <tr>
-      <td>25</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td><strong>25</strong></td>
+      <td>12.8117</td>
+      <td>12.7387</td>
+      <td>12.9757</td>
+      <td>23.9107</td>
+      <td>23.8816</td>
+      <td>23.8889</td>
+      <td>38.2216</td>
+      <td>38.1825</td>
+      <td>38.2566</td>
+      <td>55.7258</td>
+      <td>55.64</td>
+      <td>55.7154</td>
+    </tr>
+    <tr>
+      <td colspan="14"></td>
     </tr>
     <tr>
       <td rowspan="4"><strong>Edge Detection</strong></td>
-      <td>7</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td><strong>7</strong></td>
+      <td>1.43027</td>
+      <td>1.43156</td>
+      <td>1.43082</td>
+      <td>2.77367</td>
+      <td>2.67681</td>
+      <td>2.68797</td>
+      <td>4.31606</td>
+      <td>4.28377</td>
+      <td>4.30037</td>
+      <td>6.20926</td>
+      <td>6.25295</td>
+      <td>6.29526</td>
     </tr>
     <tr>
-      <td>13</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td><strong>13</strong></td>
+      <td>3.83239</td>
+      <td>3.87818</td>
+      <td>3.86391</td>
+      <td>7.19051</td>
+      <td>7.198</td>
+      <td>7.15164</td>
+      <td>11.5072</td>
+      <td>11.5126</td>
+      <td>11.5107</td>
+      <td>16.8447</td>
+      <td>16.8036</td>
+      <td>16.8442</td>
     </tr>
     <tr>
-      <td>19</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td><strong>19</strong></td>
+      <td>7.36892</td>
+      <td>7.33627</td>
+      <td>7.37341</td>
+      <td>13.7563</td>
+      <td>13.7402</td>
+      <td>13.7615</td>
+      <td>22.0471</td>
+      <td>22.0379</td>
+      <td>22.0135</td>
+      <td>32.1651</td>
+      <td>32.1458</td>
+      <td>32.096</td>
     </tr>
     <tr>
-      <td>25</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td><strong>25</strong></td>
+      <td>12.0017</td>
+      <td>12.0023</td>
+      <td>12.345</td>
+      <td>22.436</td>
+      <td>22.4468</td>
+      <td>22.4775</td>
+      <td>36.0791</td>
+      <td>35.9924</td>
+      <td>35.9503</td>
+      <td>52.6238</td>
+      <td>52.6029</td>
+      <td>52.4322</td>
     </tr>
   </tbody>
 </table>
