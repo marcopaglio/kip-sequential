@@ -13,7 +13,7 @@ This is the *sequential* version of **Kernel Image Processing**, which is a conv
 - [Implementation Details](#implementation-details)
 - [Experimentations](#experimentations)
   + [Experiment Variables](#experiment-variables)
-  + [Time Measurement](#time-measurement)
+  + [Timing](#timing)
   + [Experimental Results](#experimental-results)
   + [Hardware Details](#hardware-details)
 - [Further Checks](#further-checks)
@@ -202,7 +202,7 @@ For each image size, 3 different images are used in order to evaluate the perfor
 
 For each kernel type (i.e. `box blur` and `edge detection`) multiple *order* values are used: `7`, `13`, `19`, `25`. These affect the number of pixels that must be processed to create each new pixel in the transformed image, so they are more decisive than the image size in terms of execution time.
 
-### Time Measurement
+### Timing
 
 The comparison works well only if the **wall-clock time** is used, since the *processor time* is about the same in both sequential and parallel versions.<br>
 
@@ -595,3 +595,12 @@ ASan instruments the code and generates an executable that replaces the allocati
 ### Profiling
 
 TODO
+
+Per identificare gli hotspot ed altri parti lente dell'implementazione della convoluzione, è stato usato lo strumento di profilazione del codice [Intel VTune]( "")  con i seguenti dettagli:
+- tempo di campionamento:
+- 
+
+La profilazione viene eseguita sul programma ottimizzato, ovvero in modalità Release, e per avere una migliore giustapposizione il programma viene valutato sulla convoluzione eseguita su singole immagini, al variare della loro dimensione, così come su singoli kernel al variare della loro dimensione, in modo da collegare i tempi di esecuzione alle dimensioni degli input:
+- per 4K e k=7:
+- 
+
