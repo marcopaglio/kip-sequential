@@ -8,7 +8,10 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC" AND USE_ASAN)
     add_compile_options(/fsanitize=address /Zi)
 endif()
 
-include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(
+        ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/src
+)
 
 add_library(kip_sequential_lib
         src/Pixel.cpp

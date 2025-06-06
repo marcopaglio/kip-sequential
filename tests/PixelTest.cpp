@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "../src/Pixel.h"
+#include "Pixel.h"
 
 
 TEST(PixelTest, testConstructor) {
