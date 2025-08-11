@@ -610,6 +610,32 @@ In modo da portare sotto profilazione un esempio sufficientemente "massiccio" (c
 
 Profiling requires also to take into account how the application has been compiled:
 - debug mode allows a better association between collected metrics and the source code: the first try is with this mode to understand what is going on and where eventual probles are located;
-- release build is the real program and it is necessary to profile it, in order to analyze real things
+- release build is the real program and it is necessary to profile it, in order to analyze real things. Because using Cmake, it has been possible to using the 'RelWithDebInfo', a special version that is usable as normal (it is fast enough, optimized) but it has debug information included, which is the same to compile with 'RelWithDebInfo: `-O2 -g -DNDEBUG`' (instead of `-O3 -DNDEBUG` of Release mode).
+
+The profiling executed on kip-sequential consists of 4 parts for each compilation mode:
+- Performance Snapshot: the first step, necessary to have a summary of the program and understand which other parts have to focus on.
+  ```
+  vtune -collect memory-access -knob sampling-interval=5 -finalization-mode=full
+  ```
+- Hotspot: crucial for this project, this profiling action shows where the program spends most of the time in order to understand where hotspots are.
+  ```
+  vtune -collect hotspots -knob sampling-mode=hw -knob sampling-interval=5 -knob enable-stack-collection=true -finalization-mode=full
+  ```
+- Microarchitecture execution: calculate the CPU usage wrt functions, so this is very useful in sequential programs like this, and calculate the percentage of *retired instruction* in order to report where vectorization could be useful.
+  ```
+  vtune -collect uarch-exploration -knob sampling-interval=5 -knob collect-memory-bandwidth=true -target-duration-type=veryshort -finalization-mode=full 
+  ```
+- Memory Access: crucial to understand if the program is memory-friendly, in particular how many LLC (last-level cache) misses there in the execution.
+
+#### Results
+
+Results in profiling differ amount debug and release compiling mode, due to different optimizations. Both spend most of the time in the convolution loops, as expected. Surprisingly, the following top-hotspot changes depending on build type: debug mode spend a total of 27% of execution time in allocation with std::vector, while the bottleneck of release mode is on Pixel class, particularly on gettermethods and destructor. In both cases, hotspot functions are called in convolution loops. Optimizations of release mode makes the weight of vector allocation lighter, but time spent in using Pixel objects doubles (from 10 to 19 seconds, i.e. 29% of execution time). This can be a good hint where to focus to improve the program. TODO: ADD IMGS
+
+The Microarchitecture execution reveals some new interesting details about retiring instruction: in both modality the percentage of retired instruction is less than 80%, mainly due to light memory operations (39.9%), in debug mode, while optimizations of release mode improve the situation but at the same time branch prediction rate decreases, even with a 100% rate of *bad speculation* for E-cores. This result can be imporve focusing on best memory and branch predictions.
+
+In the end, memory access profiling reveals that, even if there are lots of miss in predictions, the number of LLC misses is 0. Considering the size of the test for profiling is not that little, which means data is enough big, cache misses are not a problem of this project.
+
+Anyway, release build profile is to be consider a more real analysis than the debug one. It contains more other interesting results:
+
 
 
