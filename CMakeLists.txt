@@ -28,6 +28,10 @@ add_library(kip_sequential_lib
         src/ImageProcessing.h
         src/KernelFactory.cpp
         src/KernelFactory.h
+)
+
+add_executable(kip_sequential_main
+        src/main.cpp
         src/Timer.cpp
         src/Timer.h
         src/HighResolutionTimer.cpp
@@ -35,10 +39,10 @@ add_library(kip_sequential_lib
         src/SteadyTimer.cpp
         src/SteadyTimer.h
 )
-
-add_executable(kip_sequential_main src/main.cpp)
-
 target_link_libraries(kip_sequential_main kip_sequential_lib)
+
+add_executable(kip_sequential_profile src/profile.cpp)
+target_link_libraries(kip_sequential_profile kip_sequential_lib)
 
 add_compile_definitions(PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
 add_compile_definitions(CMAKE_BINARY_DIR="${CMAKE_BINARY_DIR}")
