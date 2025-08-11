@@ -596,11 +596,20 @@ ASan instruments the code and generates an executable that replaces the allocati
 
 TODO
 
-Per identificare gli hotspot ed altri parti lente dell'implementazione della convoluzione, è stato usato lo strumento di profilazione del codice [Intel VTune]( "")  con i seguenti dettagli:
+Per meglio definire le performance ed identificare eventuali hotspot dell'implementazione della convoluzione, è stato usato lo strumento di profilazione del codice [Intel VTune]( "")  con i seguenti dettagli:
 - tempo di campionamento:
 - 
 
-La profilazione viene eseguita sul programma ottimizzato, ovvero in modalità Release, e per avere una migliore giustapposizione il programma viene valutato sulla convoluzione eseguita su singole immagini, al variare della loro dimensione, così come su singoli kernel al variare della loro dimensione, in modo da collegare i tempi di esecuzione alle dimensioni degli input:
-- per 4K e k=7:
-- 
+#### What to Profile
+
+Profiling the main program is not a good idea, because the overhead added increases with execution time; also profiling each experiment singularly is not a good idea, because there are similar operations. For all those reasons, a specific source cpp file has been created for just profiling purposes, called profile.cpp. In this file, just a good example for the experiments has been used:
+- kernel di tipo boxBlur di ordine 19
+- convoluzione eseguita su immagine 6K (6K-1)
+- singola ripetizione
+In modo da portare sotto profilazione un esempio sufficientemente "massiccio" (c.a. 1.30 sec di esecuzione in modalità Debug, c.a. 25 sec in modalità Release), ma anche che fose "pulito" da componenti esterni al soggetto da profilare, per esempio senza misurazioni temporali e senza mischiare diversi esperimenti nel solito programma.
+
+Profiling requires also to take into account how the application has been compiled:
+- debug mode allows a better association between collected metrics and the source code: the first try is with this mode to understand what is going on and where eventual probles are located;
+- release build is the real program and it is necessary to profile it, in order to analyze real things
+
 
