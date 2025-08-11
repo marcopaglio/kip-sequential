@@ -626,6 +626,9 @@ The profiling executed on kip-sequential consists of 4 parts for each compilatio
   vtune -collect uarch-exploration -knob sampling-interval=5 -knob collect-memory-bandwidth=true -target-duration-type=veryshort -finalization-mode=full 
   ```
 - Memory Access: crucial to understand if the program is memory-friendly, in particular how many LLC (last-level cache) misses there in the execution.
+  ```
+  vtune -collect memory-access -knob sampling-interval=5 -target-duration-type=veryshort -finalization-mode=full 
+  ```
 
 #### Results
 
