@@ -540,7 +540,7 @@ The following tables summarizes the temporal measurements of convolutions on dif
 
 #### Save to File
 
-This project records lots of time measurements (96 experiments, i.e. 3 image types x 4 image sizes x 2 kernel types x 4 kernel sizes), therefore saving data in a textual file is desirable. The best choice is the CVS (*Comma-Separated Values*) file, which can be used to generate diagrams programmatically. In particular, for each experiment the following fields are recorded:
+This project records lots of time measurements (96 experiments, i.e. 3 image types x 4 image sizes x 2 kernel types x 4 kernel sizes), therefore saving data in a textual file is desirable. CVS (*Comma-Separated Values*) files, which can be used to generate diagrams programmatically, can be found in the [data](data) folder. In particular, for each experiment the following fields are recorded:
 - Input image name
 - Input image dimensions
 - Kernel type
