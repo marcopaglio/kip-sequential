@@ -594,11 +594,7 @@ ASan instruments the code and generates an executable that replaces the allocati
 
 ### Profiling
 
-TODO
-
-Per meglio definire le performance ed identificare eventuali hotspot dell'implementazione della convoluzione, è stato usato lo strumento di profilazione del codice [Intel VTune]( "")  con i seguenti dettagli:
-- tempo di campionamento:
-- 
+To better define performance and identify any bottlenecks, the [Intel VTune]("https://www.intel.com/content/www/us/en/developer/tools/oneapi/vtune-profiler.html") code profiler was used. This tool provides statistical data on CPU usage, for this reason it is important not to consider the data as totally true and to reduce any non-deterministic effects by not using the machine during the measurements.
 
 #### What to Profile
 
@@ -608,7 +604,7 @@ Profiling the main program is not a good idea, because the overhead added increa
 - singola ripetizione
 In modo da portare sotto profilazione un esempio sufficientemente "massiccio" (c.a. 1.30 sec di esecuzione in modalità Debug, c.a. 25 sec in modalità Release), ma anche che fose "pulito" da componenti esterni al soggetto da profilare, per esempio senza misurazioni temporali e senza mischiare diversi esperimenti nel solito programma.
 
-Profiling requires also to take into account how the application has been compiled:
+Profiling requires also to take into account how the application has been compiled: Results in profiling differ amount debug and release compiling mode, due to different optimizations.  Anyway, release build profile is to be consider a more real analysis than the debug one.
 - debug mode allows a better association between collected metrics and the source code: the first try is with this mode to understand what is going on and where eventual probles are located;
 - release build is the real program and it is necessary to profile it, in order to analyze real things. Because using Cmake, it has been possible to using the 'RelWithDebInfo', a special version that is usable as normal (it is fast enough, optimized) but it has debug information included, which is the same to compile with 'RelWithDebInfo: `-O2 -g -DNDEBUG`' (instead of `-O3 -DNDEBUG` of Release mode).
 
@@ -619,7 +615,7 @@ The profiling executed on kip-sequential consists of 4 parts for each compilatio
   ```
 - Hotspot: crucial for this project, this profiling action shows where the program spends most of the time in order to understand where hotspots are.
   ```
-  vtune -collect hotspots -knob sampling-mode=hw -knob sampling-interval=5 -knob enable-stack-collection=true -finalization-mode=full
+  vtune -collect hotspots -knob sampling-mode=hw -knob enable-stack-collection=true -target-duration-type=veryshort -finalization-mode=full
   ```
 - Microarchitecture execution: calculate the CPU usage wrt functions, so this is very useful in sequential programs like this, and calculate the percentage of *retired instruction* in order to report where vectorization could be useful.
   ```
@@ -627,18 +623,14 @@ The profiling executed on kip-sequential consists of 4 parts for each compilatio
   ```
 - Memory Access: crucial to understand if the program is memory-friendly, in particular how many LLC (last-level cache) misses there in the execution.
   ```
-  vtune -collect memory-access -knob sampling-interval=5 -target-duration-type=veryshort -finalization-mode=full 
+  vtune -collect memory-access -target-duration-type=veryshort -finalization-mode=full
   ```
 
 #### Results
 
-Results in profiling differ amount debug and release compiling mode, due to different optimizations. Both spend most of the time in the convolution loops, as expected. Surprisingly, the following top-hotspot changes depending on build type: debug mode spend a total of 27% of execution time in allocation with std::vector, while the bottleneck of release mode is on Pixel class, particularly on gettermethods and destructor. In both cases, hotspot functions are called in convolution loops. Optimizations of release mode makes the weight of vector allocation lighter, but time spent in using Pixel objects doubles (from 10 to 19 seconds, i.e. 29% of execution time). This can be a good hint where to focus to improve the program. TODO: ADD IMGS
+The profiling shows that more than 50% of the execution is located in the ImageProcessing::convolution function, as expected. From the *hotspot analysis*, shown in Fig, we can see that about 25% of CPU work is necessary to pixel retrieval (via the Pixel class getters) and their destruction; it is reasonable to assume that the use of the Pixel class and the misalignment of data in memory contribute to the overhead. In this regard, we could consider how to better define or use the class itself.
 
-The Microarchitecture execution reveals some new interesting details about retiring instruction: in both modality the percentage of retired instruction is less than 80%, mainly due to light memory operations (39.9%), in debug mode, while optimizations of release mode improve the situation but at the same time branch prediction rate decreases, even with a 100% rate of *bad speculation* for E-cores. This result can be imporve focusing on best memory and branch predictions.
-
-In the end, memory access profiling reveals that, even if there are lots of miss in predictions, the number of LLC misses is 0. Considering the size of the test for profiling is not that little, which means data is enough big, cache misses are not a problem of this project.
-
-Anyway, release build profile is to be consider a more real analysis than the debug one. It contains more other interesting results:
+*Memory accesses* are other relevant outcomes. No LLC misses are detected with just a CPU sampling interval of 5ms. This is a positive result, but it must be verified by increasing the sampling rate: at 1ms, the analysis detects more than 1 million LLC misses over 34s of CPU execution. Considering the size of the profiling test is not that little (there are 90 billion stores and 42 billion loads), LLC misses are not a problem for this project.
 
 
 
