@@ -594,47 +594,28 @@ ASan instruments the code and generates an executable that replaces the allocati
 
 ### Profiling
 
-To better define performance and identify any bottlenecks, the [Intel VTune]("https://www.intel.com/content/www/us/en/developer/tools/oneapi/vtune-profiler.html") code profiler was used. This tool provides statistical data on CPU usage, for this reason it is important not to consider the data as totally true and to reduce any non-deterministic effects by not using the machine during the measurements.
+To better understand where the program spends most of the time and to identify any bottlenecks, the [Intel VTune](https://www.intel.com/content/www/us/en/developer/tools/oneapi/vtune-profiler.html "Intel VTune website") code profiler is used. This tool provides statistical data on CPU usage, for this reason it is important not to consider the data as totally true and to reduce any non-deterministic effects by not using the machine during the measurements.
 
 #### What to Profile
 
-Profiling the main program is not a good idea, because the overhead added increases with execution time; also profiling each experiment singularly is not a good idea, because there are similar operations. For all those reasons, a specific source cpp file has been created for just profiling purposes, called profile.cpp. In this file, just a good example for the experiments has been used:
-- kernel di tipo boxBlur di ordine 19
-- convoluzione eseguita su immagine 6K (6K-1)
-- singola ripetizione
-In modo da portare sotto profilazione un esempio sufficientemente "massiccio" (c.a. 1.30 sec di esecuzione in modalità Debug, c.a. 25 sec in modalità Release), ma anche che fose "pulito" da componenti esterni al soggetto da profilare, per esempio senza misurazioni temporali e senza mischiare diversi esperimenti nel solito programma.
+Profiling the main program is not a good idea because there are external components (e.g. timer) that are not of interest; also profiling each experiment singularly is not a good idea because operations are similar. For all those reasons, the `profile.cpp` contains a minimal test case defined by sufficiently large data, i.e. a single convolution of an image 6000x4000 pixels (`6K-1`) with a box blur kernel of order 19.
 
-Profiling requires also to take into account how the application has been compiled: Results in profiling differ amount debug and release compiling mode, due to different optimizations.  Anyway, release build profile is to be consider a more real analysis than the debug one.
-- debug mode allows a better association between collected metrics and the source code: the first try is with this mode to understand what is going on and where eventual probles are located;
-- release build is the real program and it is necessary to profile it, in order to analyze real things. Because using Cmake, it has been possible to using the 'RelWithDebInfo', a special version that is usable as normal (it is fast enough, optimized) but it has debug information included, which is the same to compile with 'RelWithDebInfo: `-O2 -g -DNDEBUG`' (instead of `-O3 -DNDEBUG` of Release mode).
-
-The profiling executed on kip-sequential consists of 4 parts for each compilation mode:
-- Performance Snapshot: the first step, necessary to have a summary of the program and understand which other parts have to focus on.
-  ```
-  vtune -collect memory-access -knob sampling-interval=5 -finalization-mode=full
-  ```
-- Hotspot: crucial for this project, this profiling action shows where the program spends most of the time in order to understand where hotspots are.
-  ```
-  vtune -collect hotspots -knob sampling-mode=hw -knob enable-stack-collection=true -target-duration-type=veryshort -finalization-mode=full
-  ```
-- Microarchitecture execution: calculate the CPU usage wrt functions, so this is very useful in sequential programs like this, and calculate the percentage of *retired instruction* in order to report where vectorization could be useful.
-  ```
-  vtune -collect uarch-exploration -knob sampling-interval=5 -knob collect-memory-bandwidth=true -target-duration-type=veryshort -finalization-mode=full 
-  ```
-- Memory Access: crucial to understand if the program is memory-friendly, in particular how many LLC (last-level cache) misses there in the execution.
-  ```
-  vtune -collect memory-access -target-duration-type=veryshort -finalization-mode=full
-  ```
+Profiling requires also to take into account how the application has been compiled: *debug* mode allows a better association between collected metrics and the source code, but the real program is obtained by the optimized *release* mode. Luckily, CMake allows to compile using the `RelWithDebInfo` mode, i.e. a fast enough version which includes debug informations, through the compiler options `-O2 -g -DNDEBUG`.
 
 #### Results
 
-As expected, the profiling shows that more than 50% of the execution is located in the `ImageProcessing::convolution` function, while about 25% of CPU work is necessary to pixel retrieval and their destruction (via the Pixel class). [Fig](#figura-1)  shows the details. it is reasonable to assume that the use of the Pixel class and the misalignment of data in memory contribute to the overhead. In this regard, we could consider how to better define or use the class itself.
+As expected, the profiling shows that more than 50% of the execution is located in the `ImageProcessing::convolution` function, while approximately 25% of CPU work is necessary to pixel retrieval and destruction via the Pixel class. [Fig. 1](#figure-1) shows also the percentage of *retired instruction*, i.e. the "*Instructions Retired: Total*" column. For Pixel's methods this rate is very low, and this contributes to the overhead; in this regard, a better definition or use of the class itself could bring benefits.
 
 <p align="center">
-  <img id="figura-1" src="/../assets/vtune_seq_rel_hs_1ms.png" alt="Screenshot of hotspot profiling results." title="Hotspot results" width="70%"/>
+  <img id="figure-1" src="/../assets/vtune_seq_rel_hs_1ms.png" alt="Screenshot of hotspot profiling results." title="Hotspot results" width="70%"/>
 </p>
 
-*Memory accesses* are other relevant outcomes. No LLC misses are detected with just a CPU sampling interval of 5ms. This is a positive result, but it must be verified by increasing the sampling rate: at 1ms, the analysis detects more than 1 million LLC misses over 34s of CPU execution. Considering the size of the profiling test is not that little (there are 90 billion stores and 42 billion loads), LLC misses are not a problem for this project.
+Another relevant outcome concerns *memory accesses*: no LLC (*last-level cache*) misses are detected with a CPU sampling interval of only 5ms! This is a positive result, but it must be verified by increasing the sampling rate: in fact, at 1ms the analysis detects more than 1 million LLC misses over 34s of CPU execution. Considering the size of the profiling test is not that little (there are 90 billion stores and 42 billion loads), LLC misses are not a problem for this project. Let's do some calculations:
+- the LLC miss rate over all memory accesses is $1.150.000 / 132·10^9 \approx 8.71·10^{-6} = 0,000871\\%$
+- there are $1.150.000 / 34 \approx 33.823$ misses per second
+- for cache lines of $64 B$, the total traffic is $1.150.000 × 64 B = 73.600.000 B \approx 73.6 MB \sim 70.2 MiB$
+
+This is equal to $\sim 2.0 MiB/s$ of DRAM average traffic due to LLC misses. In the worst case, the latency for each miss is about 300ns, therefore a loss of 0.345s wrt 34s of execution, i.e. about 1% of execution time: a very low impact.
 
 
 
