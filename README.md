@@ -628,10 +628,10 @@ The profiling executed on kip-sequential consists of 4 parts for each compilatio
 
 #### Results
 
-As expected, the profiling shows that more than 50% of the execution is located in the `ImageProcessing::convolution` function, while about 25% of CPU work is necessary to pixel retrieval and their destruction (via the Pixel class). Fig shows the details. it is reasonable to assume that the use of the Pixel class and the misalignment of data in memory contribute to the overhead. In this regard, we could consider how to better define or use the class itself.
+As expected, the profiling shows that more than 50% of the execution is located in the `ImageProcessing::convolution` function, while about 25% of CPU work is necessary to pixel retrieval and their destruction (via the Pixel class). [Fig](#figura-1)  shows the details. it is reasonable to assume that the use of the Pixel class and the misalignment of data in memory contribute to the overhead. In this regard, we could consider how to better define or use the class itself.
 
 <p align="center">
-  <img src="/../assets/vtune_seq_rel_hs_1ms.png" alt="Screenshot of hotspot profiling results." title="Hotspot results" width="30%"/>
+  <img id="figura-1" src="/../assets/vtune_seq_rel_hs_1ms.png" alt="Screenshot of hotspot profiling results." title="Hotspot results" width="70%"/>
 </p>
 
 *Memory accesses* are other relevant outcomes. No LLC misses are detected with just a CPU sampling interval of 5ms. This is a positive result, but it must be verified by increasing the sampling rate: at 1ms, the analysis detects more than 1 million LLC misses over 34s of CPU execution. Considering the size of the profiling test is not that little (there are 90 billion stores and 42 billion loads), LLC misses are not a problem for this project.
