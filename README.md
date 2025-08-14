@@ -598,13 +598,13 @@ To better understand where the program spends most of the time and to identify a
 
 #### What to Profile
 
-Profiling the main program is not a good idea because there are external components (e.g. timer) that are not of interest; also profiling each experiment singularly is not a good idea because operations are similar. For all those reasons, the `profile.cpp` contains a minimal test case defined by sufficiently large data, i.e. a single convolution of an image 6000x4000 pixels (`6K-1`) with a box blur kernel of order 19.
+Profiling the main program is not a good idea because there are external components (e.g. timer) that are not of interest; also profiling each experiment singularly is not a good idea because operations are similar. TODO: try different sizes. For all those reasons, the `profile.cpp` contains a minimal test case defined by sufficiently large data, i.e. a single convolution of an image 6000x4000 pixels (`6K-1`) with a box blur kernel of order 19.
 
 Profiling requires also to take into account how the application has been compiled: *debug* mode allows a better association between collected metrics and the source code, but the real program is obtained by the optimized *release* mode. Luckily, CMake allows to compile using the `RelWithDebInfo` mode, i.e. a fast enough version which includes debug informations, through the compiler options `-O2 -g -DNDEBUG`.
 
 #### Results
 
-As expected, the profiling shows that more than 50% of the execution is located in the `ImageProcessing::convolution` function, while approximately 25% of CPU work is necessary to pixel retrieval and destruction via the Pixel class. [Fig. 1](#figure-1) shows also the percentage of *retired instruction*, i.e. the "*Instructions Retired: Total*" column. For Pixel's methods this rate is very low, and this contributes to the overhead; in this regard, a better definition or use of the class itself could bring benefits.
+As expected, the profiling shows that more than 50% of the execution is located in the `ImageProcessing::convolution` function, while approximately 25% of CPU work is necessary to pixel retrieval and destruction via the Pixel class. [Fig. 1](#figure-1) shows also the percentage of *retired instructions*. For Pixel's methods this rate is very low, and this contributes to the overhead; in this regard, a better definition or use of the class itself could bring benefits.
 
 <p align="center">
   <img id="figure-1" src="/../assets/vtune_seq_rel_hs_1ms.png" alt="Screenshot of hotspot profiling results." title="Hotspot results" width="70%"/>
@@ -615,7 +615,7 @@ Another relevant outcome concerns *memory accesses*: no LLC (*last-level cache*)
 - there are $1.150.000 / 34 \approx 33.823$ misses per second
 - for cache lines of $64 B$, the total traffic is $1.150.000 × 64 B = 73.600.000 B \approx 73.6 MB \sim 70.2 MiB$
 
-This is equal to $\sim 2.0 MiB/s$ of DRAM average traffic due to LLC misses. In the worst case, the latency for each miss is about 300ns, therefore a loss of 0.345s wrt 34s of execution, i.e. about 1% of execution time: a very low impact.
+This is equal to $\sim 2.0 MiB/s$ of DRAM average traffic due to LLC misses. In the worst case, the latency for each miss is about 300ns, therefore a loss of 0.345s wrt 34s of execution, i.e. about 1% of execution time, is a very low impact.
 
 
 
