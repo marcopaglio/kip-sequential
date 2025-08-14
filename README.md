@@ -598,7 +598,7 @@ To better understand where the program spends most of the time and to identify a
 
 #### What to Profile
 
-Profiling the main program is not a good idea because there are external components (e.g. timer) that are not of interest; also profiling each experiment singularly is not a good idea because operations are similar. TODO: try different sizes. For all those reasons, the `profile.cpp` contains a minimal test case defined by sufficiently large data, i.e. a single convolution of an image 6000x4000 pixels (`6K-1`) with a box blur kernel of order 19.
+Profiling the main program is not a good idea because there are external components (e.g. timer) that are not of interest; also profiling each experiment singularly is not a good idea because operations are similar. For all those reasons, the `profile.cpp` contains a minimal test case defined by sufficiently large data, i.e. a single convolution of an image 6000x4000 pixels (`6K-1`) with a box blur kernel of order 19.
 
 Profiling requires also to take into account how the application has been compiled: *debug* mode allows a better association between collected metrics and the source code, but the real program is obtained by the optimized *release* mode. Luckily, CMake allows to compile using the `RelWithDebInfo` mode, i.e. a fast enough version which includes debug informations, through the compiler options `-O2 -g -DNDEBUG`.
 
