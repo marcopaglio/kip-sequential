@@ -594,7 +594,7 @@ ASan instruments the code and generates an executable that replaces the allocati
 
 ### Profiling
 
-To better understand where the program spends most of the time and to identify any bottlenecks, the [Intel VTune](https://www.intel.com/content/www/us/en/developer/tools/oneapi/vtune-profiler.html "Intel VTune website") code profiler is used. This tool provides statistical data on CPU usage, for this reason it is important not to consider the data as totally true and to reduce any non-deterministic effects by not using the machine during the measurements.
+In order to verify whether the idea behind the program is correct (or not) and to better understand where the program spends most of the time and to identify any bottlenecks, the [Intel VTune](https://www.intel.com/content/www/us/en/developer/tools/oneapi/vtune-profiler.html "Intel VTune website") code profiler is used. This tool provides statistical data on CPU usage, for this reason it is important not to consider the data as totally true and to reduce any non-deterministic effects by not using the machine during the measurements.
 
 #### What to Profile
 
