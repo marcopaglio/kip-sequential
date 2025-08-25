@@ -3,9 +3,9 @@
 
 #include <array>
 
-#include "Image.h"
-#include "Kernel.h"
-#include "ImageProcessing.h"
+#include "image/Image.h"
+#include "kernel/Kernel.h"
+#include "processing/ImageProcessing.h"
 
 class ImageProcessingTest : public ::testing::Test {
 protected:

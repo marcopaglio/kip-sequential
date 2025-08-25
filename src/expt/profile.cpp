@@ -2,11 +2,11 @@
 #include <sstream>
 #include <thread>
 
-#include "Image.h"
-#include "Kernel.h"
-#include "STBImageReader.h"
-#include "ImageProcessing.h"
-#include "KernelFactory.h"
+#include "image/Image.h"
+#include "kernel/Kernel.h"
+#include "image/reader/STBImageReader.h"
+#include "processing/ImageProcessing.h"
+#include "kernel/KernelFactory.h"
 
 
 int main() {

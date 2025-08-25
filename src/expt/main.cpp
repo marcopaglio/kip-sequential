@@ -3,14 +3,14 @@
 #include <fstream>
 #include <thread>
 
-#include "HighResolutionTimer.h"
-#include "Image.h"
-#include "Kernel.h"
-#include "STBImageReader.h"
-#include "ImageProcessing.h"
-#include "KernelFactory.h"
-#include "SteadyTimer.h"
-#include "Timer.h"
+#include "timer/HighResolutionTimer.h"
+#include "image/Image.h"
+#include "kernel/Kernel.h"
+#include "image/reader/STBImageReader.h"
+#include "processing/ImageProcessing.h"
+#include "kernel/KernelFactory.h"
+#include "timer/SteadyTimer.h"
+#include "timer/Timer.h"
 
 namespace KernelInfos {
     enum KernelTypes {

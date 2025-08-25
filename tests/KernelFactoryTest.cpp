@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "KernelFactory.h"
+#include "kernel/KernelFactory.h"
 
 class BlurKernelFactoryTest : public ::testing::TestWithParam<std::pair<unsigned int, float>> {
 protected:

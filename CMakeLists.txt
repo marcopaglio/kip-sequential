@@ -14,34 +14,34 @@ include_directories(
 )
 
 add_library(kip_sequential_lib
-        src/Pixel.cpp
-        src/Pixel.h
-        src/Image.cpp
-        src/Image.h
-        src/Kernel.cpp
-        src/Kernel.h
-        src/ImageReader.cpp
-        src/ImageReader.h
-        src/STBImageReader.cpp
-        src/STBImageReader.h
-        src/ImageProcessing.cpp
-        src/ImageProcessing.h
-        src/KernelFactory.cpp
-        src/KernelFactory.h
+        src/image/Pixel.cpp
+        src/image/Pixel.h
+        src/image/Image.cpp
+        src/image/Image.h
+        src/kernel/Kernel.cpp
+        src/kernel/Kernel.h
+        src/image/reader/ImageReader.cpp
+        src/image/reader/ImageReader.h
+        src/image/reader/STBImageReader.cpp
+        src/image/reader/STBImageReader.h
+        src/processing/ImageProcessing.cpp
+        src/processing/ImageProcessing.h
+        src/kernel/KernelFactory.cpp
+        src/kernel/KernelFactory.h
 )
 
 add_executable(kip_sequential_main
-        src/main.cpp
-        src/Timer.cpp
-        src/Timer.h
-        src/HighResolutionTimer.cpp
-        src/HighResolutionTimer.h
-        src/SteadyTimer.cpp
-        src/SteadyTimer.h
+        src/expt/main.cpp
+        src/expt/timer/Timer.cpp
+        src/expt/timer/Timer.h
+        src/expt/timer/HighResolutionTimer.cpp
+        src/expt/timer/HighResolutionTimer.h
+        src/expt/timer/SteadyTimer.cpp
+        src/expt/timer/SteadyTimer.h
 )
 target_link_libraries(kip_sequential_main kip_sequential_lib)
 
-add_executable(kip_sequential_profile src/profile.cpp)
+add_executable(kip_sequential_profile src/expt/profile.cpp)
 target_link_libraries(kip_sequential_profile kip_sequential_lib)
 
 add_compile_definitions(PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}")

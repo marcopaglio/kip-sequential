@@ -2,7 +2,7 @@
 #define STBIMAGEREADER_H
 #include <filesystem>
 
-#include "Image.h"
+#include "image/Image.h"
 #include "ImageReader.h"
 
 

@@ -2,8 +2,8 @@
 #define IMAGEPROCESSING_H
 #include <memory>
 
-#include "Image.h"
-#include "Kernel.h"
+#include "image/Image.h"
+#include "kernel/Kernel.h"
 
 
 /**

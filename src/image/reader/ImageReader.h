@@ -2,7 +2,7 @@
 #define IMAGEREADER_H
 #include <filesystem>
 
-#include "Image.h"
+#include "image/Image.h"
 
 
 /**
