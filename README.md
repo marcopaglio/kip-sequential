@@ -152,7 +152,7 @@ Kip-sequential is written in **C++** and uses **CMake** as build automation tool
 
 - entities (**Pixel**, **Image** and **Kernel**) are implemented as read-only: no setter or other modifier are defined, so that image processing functions must instantiate new objects instead of modifying the existing ones.
 - pixels are stored as a matrix, i.e. `vector<vector<Pixel>>`, in order to access the elements clearly; unfortunately, this way incurs considerable overhead because of the *Standard Template Library* (STL). Alternative versions of this data structure are proposed in the [pixel_vector](/../pixel_vector) branch, in which pixels are stored as a single vector, i.e. `vector<Pixel>`, and [pixel_SoA](/../pixel_SoA) branch, which red, green and blue values are stored in indipendent vectors, i.e. `vector<uint_8>`.
-- kernels differ only in the way they are constructed; for this reason, **KernelFactory** has a static method for each type that builds kernel values based on its order. In particular, only *box blur* and *edge detection* kernels described in the Section [Kernel Types](#kernel-types) are used.
+- kernels differ only in the way they are constructed; for this reason, **KernelFactory** has a static method for each type that builds kernel values based on its order. In particular, only *box blur* kernels described in the Section [Kernel Types](#kernel-types) are used.
 - the processing core (**ImageProcessing**) collects the functions that modify images:
   * `extendEdge` generates a new image with the edges extended by `padding` pixels on each side using the *extend* method described in the Section [Edge Handling](#edge-handling).
   * `convolution` creates a transformed image by applying convolution of the input image with the input kernel, as described in the [Introduction](#introduction). It consists of four nested loops:
@@ -200,7 +200,7 @@ For each image size, 3 different images are used in order to evaluate the perfor
 
 #### Kernels
 
-For each kernel type (i.e. `box blur` and `edge detection`) multiple *order* values are used: `7`, `13`, `19`, `25`. These affect the number of pixels that must be processed to create each new pixel in the transformed image, so they are more decisive than the image size in terms of execution time.
+For each kernel type (i.e. `box blur`) multiple *order* values are used: `7`, `13`, `19`, `25`. These affect the number of pixels that must be processed to create each new pixel in the transformed image, so they are more decisive than the image size in terms of execution time.
 
 ### Timing
 
@@ -218,7 +218,7 @@ Given the aim of the project, the timer starts just before the `convolution` met
 
 External or background system processes can influence experiments. To get a more reliable time measurement, two strategies are used:
 - Each image is processed `3` times, and the average time is taken. 
-- After processing each image with all kernel types of the same size, the execution is paused (using the *sleep* command) so that other processes can be carried on and thus affect time measurements less. The idle time is `imageQuality + order / 2` seconds, where `imageQuality` is the high definition number of the image (e.g. it counts 4 seconds for `4K` images).
+- After processing each image with all kernel types of the same size, the execution is paused (using the *sleep* command) so that other processes can be carried on and thus affect time measurements less. The idle time is `(imageQuality + order / 2) / 2` seconds for each type of kernel used, where `imageQuality` is the high definition number of the image (e.g. it counts 4 seconds for `4K` images).
 
 ### Experimental Results
 
@@ -313,70 +313,6 @@ The following tables summarizes the temporal measurements of convolutions on dif
       <td>183.449</td>
       <td>183.899</td>
       <td>183.78</td>
-    </tr> 
-    <tr>
-      <td colspan="14"></td>
-    </tr>
-    <tr>
-      <td rowspan="4"><strong>Edge Detection</strong></td>
-      <td><strong>7</strong></td>
-      <td>3.90481</td>
-      <td>3.73811</td>
-      <td>3.71947</td>
-      <td>14.2113</td>
-      <td>7.16701</td>
-      <td>15.4881</td>
-      <td>11.3286</td>
-      <td>14.9823</td>
-      <td>22.4919</td>
-      <td>16.3514</td>
-      <td>16.5471</td>
-      <td>16.6616</td>
-    </tr>
-    <tr>
-      <td><strong>13</strong></td>
-      <td>12.0007</td>
-      <td>11.7334</td>
-      <td>11.9763</td>
-      <td>47.0423</td>
-      <td>49.6171</td>
-      <td>52.1098</td>
-      <td>35.9861</td>
-      <td>77.8714</td>
-      <td>34.3366</td>
-      <td>51.6724</td>
-      <td>51.6228</td>
-      <td>51.7338</td>
-    </tr>
-    <tr>
-      <td><strong>19</strong></td>
-      <td>24.3209</td>
-      <td>24.6179</td>
-      <td>54.0111</td>
-      <td>105.43</td>
-      <td>102.977</td>
-      <td>113.657</td>
-      <td>74.3153</td>
-      <td>151.77</td>
-      <td>72.5981</td>
-      <td>106.747</td>
-      <td>106.773</td>
-      <td>106.392</td>
-    </tr>
-    <tr>
-      <td><strong>25</strong></td>
-      <td>41.8965</td>
-      <td>42.2515</td>
-      <td>92.7604</td>
-      <td>77.3546</td>
-      <td>180.539</td>
-      <td>118.398</td>
-      <td>292.527</td>
-      <td>285.405</td>
-      <td>124.555</td>
-      <td>181.092</td>
-      <td>182.063</td>
-      <td>181.646</td>
     </tr>
   </tbody>
 </table>
@@ -471,76 +407,12 @@ The following tables summarizes the temporal measurements of convolutions on dif
       <td>55.64</td>
       <td>55.7154</td>
     </tr>
-    <tr>
-      <td colspan="14"></td>
-    </tr>
-    <tr>
-      <td rowspan="4"><strong>Edge Detection</strong></td>
-      <td><strong>7</strong></td>
-      <td>1.43027</td>
-      <td>1.43156</td>
-      <td>1.43082</td>
-      <td>2.77367</td>
-      <td>2.67681</td>
-      <td>2.68797</td>
-      <td>4.31606</td>
-      <td>4.28377</td>
-      <td>4.30037</td>
-      <td>6.20926</td>
-      <td>6.25295</td>
-      <td>6.29526</td>
-    </tr>
-    <tr>
-      <td><strong>13</strong></td>
-      <td>3.83239</td>
-      <td>3.87818</td>
-      <td>3.86391</td>
-      <td>7.19051</td>
-      <td>7.198</td>
-      <td>7.15164</td>
-      <td>11.5072</td>
-      <td>11.5126</td>
-      <td>11.5107</td>
-      <td>16.8447</td>
-      <td>16.8036</td>
-      <td>16.8442</td>
-    </tr>
-    <tr>
-      <td><strong>19</strong></td>
-      <td>7.36892</td>
-      <td>7.33627</td>
-      <td>7.37341</td>
-      <td>13.7563</td>
-      <td>13.7402</td>
-      <td>13.7615</td>
-      <td>22.0471</td>
-      <td>22.0379</td>
-      <td>22.0135</td>
-      <td>32.1651</td>
-      <td>32.1458</td>
-      <td>32.096</td>
-    </tr>
-    <tr>
-      <td><strong>25</strong></td>
-      <td>12.0017</td>
-      <td>12.0023</td>
-      <td>12.345</td>
-      <td>22.436</td>
-      <td>22.4468</td>
-      <td>22.4775</td>
-      <td>36.0791</td>
-      <td>35.9924</td>
-      <td>35.9503</td>
-      <td>52.6238</td>
-      <td>52.6029</td>
-      <td>52.4322</td>
-    </tr>
   </tbody>
 </table>
 
 #### Save to File
 
-This project records lots of time measurements (96 experiments, i.e. 3 image types x 4 image sizes x 2 kernel types x 4 kernel sizes), therefore saving data in a textual file is desirable. CVS (*Comma-Separated Values*) files, which can be used to generate diagrams programmatically, can be found in the [data](data) folder. In particular, for each experiment the following fields are recorded:
+This project records lots of time measurements (48 experiments, i.e. 3 image types x 4 image sizes x 1 kernel types x 4 kernel sizes), therefore saving data in a textual file is desirable. CVS (*Comma-Separated Values*) files, which can be used to generate diagrams programmatically, can be found in the [data](data) folder. In particular, for each experiment the following fields are recorded:
 - Input image name
 - Input image dimensions
 - Kernel type
