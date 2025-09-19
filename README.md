@@ -57,6 +57,11 @@ This can be described algorithmically with the following pseudo-code:
          new_image[y, x] ← sum
 ```
 
+#### Problem complexity
+
+Let $M$ and $N$ be the dimensions of the image on which to apply the convolution with the square kernel of dimension $K$; the complexity of the Kernel Image Processing problem is $O(MNK^2)$.
+
+
 ### Edge Handling
 
 Kernel convolution requires values from pixels outside of the image boundaries. There are a variety of methods for handling image edges:
