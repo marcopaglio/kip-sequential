@@ -8,8 +8,6 @@ This is the *Structure-of-Arrays* version of **kip-sequential**. Alternative ver
 
 ### Implementation Differences
 
-The kip-sequential structure of the AoS implementation is fully described in the Section [Implementation Details](../README.md#implementation-details "Implementation Details section of the main README file").
-
 This version differs from the:
 
 - [AoS version](../AoS "AoS version of kip-sequential") for the removal of Pixel class and the substitution of `data` attribute of `Image` class with 3 other vectors: `reds`, `greens`, and `blues`, each of which is of type `std::vector<uint8_t>`.<br>
