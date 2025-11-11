@@ -195,7 +195,7 @@ The goal of the project is to measure the sequential execution time of Kernel Im
 
 #### Images
 
-Tests are run on very large images to get more benefits from parallel execution; in fact, parallelization works better if the data is sufficiently large. The selected images can be found in the [input](imgs/input) folder and are called according to their *quality*:
+Tests are run on very large images to get more benefits from parallel execution; in fact, parallelization works better if the data is sufficiently large. The selected images can be found in the [input](images/input) folder and are called according to their *quality*:
 - `4K` if the size is 4000x2000 pixels.
 - `5K` if the size is 5000x3000 pixels.
 - `6K` if the size is 6000x4000 pixels.
