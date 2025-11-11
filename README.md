@@ -5,6 +5,11 @@ This is the *sequential* version of **Kernel Image Processing**, which is a conv
 - [kip-parallel-OpenMP](https://github.com/marcopaglio/kip-parallel-openMP "Repository of kip-parallel-OpenMP")
 - [kip-parallel-CUDA](TODO "Repository of kip-parallel-CUDA")
 
+There are two alternative versions of **kip-sequential**:
+
+- [Array of structures (AoS)](https://github.com/marcopaglio/kip-sequential/tree/main/AoS "AoS version of kip-sequential")
+- [Structure of arrays (SoA)](https://github.com/marcopaglio/kip-sequential/tree/main/SoA "SoA version of kip-sequential")
+
 ## Table of Contents
 
 - [Introduction](#introduction)
@@ -149,14 +154,14 @@ Depending on the element values, a kernel can cause a wide range of effects or e
 
 ## Implementation Details
 
-Kip-sequential is written in **C++** and uses **CMake** as build automation tool. The structure of the code is described by the following class diagram:
+Kip-sequential is written in **C++** and uses **CMake** as build automation tool. The following class diagram describes the structure of the [AoS](./AoS) implementation:
 
 <p align="center">
   <img src="/../assets/UML_classDiagram.jpg" alt="UML Class Diagram of Kernel Image Processing." title="Class Diagram" width="70%"/>
 </p>
 
 - entities (**Pixel**, **Image** and **Kernel**) are implemented as read-only: no setter or other modifier are defined, so that image processing functions must instantiate new objects instead of modifying the existing ones.
-- pixels are stored as a matrix, i.e. `vector<vector<Pixel>>`, in order to access the elements clearly; unfortunately, this way incurs considerable overhead because of the *Standard Template Library* (STL). Alternative versions of this data structure are proposed in the [pixel_vector](/../pixel_vector) branch, in which pixels are stored as a single vector, i.e. `vector<Pixel>`, and [pixel_SoA](/../pixel_SoA) branch, which red, green and blue values are stored in indipendent vectors, i.e. `vector<uint_8>`.
+- pixels are stored as a matrix, i.e. `vector<vector<Pixel>>`, in order to access the elements clearly; unfortunately, this way incurs considerable overhead because of the *Standard Template Library* (STL). Alternative versions of this data structure are proposed in the [pixel_vector](/../pixel_vector) branch, in which pixels are stored as a single vector, i.e. `vector<Pixel>`, and [SoA](./SoA) folder, which red, green and blue values are stored in indipendent vectors, i.e. `vector<uint_8>`.
 - kernels differ only in the way they are constructed; for this reason, **KernelFactory** has a static method for each type that builds kernel values based on its order. In particular, only *box blur* kernels described in the Section [Kernel Types](#kernel-types) are used.
 - the processing core (**ImageProcessing**) collects the functions that modify images:
   * `extendEdge` generates a new image with the edges extended by `padding` pixels on each side using the *extend* method described in the Section [Edge Handling](#edge-handling).
