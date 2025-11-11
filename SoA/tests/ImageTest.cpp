@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "../src/Image.h"
+#include "image/Image.h"
 
 
 TEST(ImageTest, testConstructor) {
