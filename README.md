@@ -5,6 +5,11 @@ This is the *sequential* version of **Kernel Image Processing**, which is a conv
 - [kip-parallel-OpenMP](https://github.com/marcopaglio/kip-parallel-openMP "Repository of kip-parallel-OpenMP")
 - [kip-parallel-CUDA](TODO "Repository of kip-parallel-CUDA")
 
+There are two alternative versions of **kip-sequential**:
+
+- [Array of structures (AoS)](https://github.com/marcopaglio/kip-sequential/tree/main/AoS "AoS version of kip-sequential")
+- [Structure of arrays (SoA)](https://github.com/marcopaglio/kip-sequential/tree/main/SoA "SoA version of kip-sequential")
+
 ## Table of Contents
 
 - [Introduction](#introduction)
@@ -14,7 +19,7 @@ This is the *sequential* version of **Kernel Image Processing**, which is a conv
 - [Experimentations](#experimentations)
   + [Experiment Variables](#experiment-variables)
   + [Timing](#timing)
-  + [Experimental Results](#experimental-results)
+  + [Save to File](#save-to-file)
   + [Hardware Details](#hardware-details)
 - [Further Checks](#further-checks)
   + [Unit Testing](#unit-testing)
@@ -149,14 +154,14 @@ Depending on the element values, a kernel can cause a wide range of effects or e
 
 ## Implementation Details
 
-Kip-sequential is written in **C++** and uses **CMake** as build automation tool. The structure of the code is described by the following class diagram:
+Kip-sequential is written in **C++** and uses **CMake** as build automation tool. The following class diagram describes the structure of the [AoS](./AoS) implementation:
 
 <p align="center">
   <img src="/../assets/UML_classDiagram.jpg" alt="UML Class Diagram of Kernel Image Processing." title="Class Diagram" width="70%"/>
 </p>
 
 - entities (**Pixel**, **Image** and **Kernel**) are implemented as read-only: no setter or other modifier are defined, so that image processing functions must instantiate new objects instead of modifying the existing ones.
-- pixels are stored as a matrix, i.e. `vector<vector<Pixel>>`, in order to access the elements clearly; unfortunately, this way incurs considerable overhead because of the *Standard Template Library* (STL). Alternative versions of this data structure are proposed in the [pixel_vector](/../pixel_vector) branch, in which pixels are stored as a single vector, i.e. `vector<Pixel>`, and [pixel_SoA](/../pixel_SoA) branch, which red, green and blue values are stored in indipendent vectors, i.e. `vector<uint_8>`.
+- pixels are stored as a matrix, i.e. `vector<vector<Pixel>>`, in order to access the elements clearly; unfortunately, this way incurs considerable overhead because of the *Standard Template Library* (STL). Alternative versions of this data structure are proposed in the [pixel_vector](/../pixel_vector) branch, in which pixels are stored as a single vector, i.e. `vector<Pixel>`, and [SoA](./SoA) folder, which red, green and blue values are stored in indipendent vectors, i.e. `vector<uint_8>`.
 - kernels differ only in the way they are constructed; for this reason, **KernelFactory** has a static method for each type that builds kernel values based on its order. In particular, only *box blur* kernels described in the Section [Kernel Types](#kernel-types) are used.
 - the processing core (**ImageProcessing**) collects the functions that modify images:
   * `extendEdge` generates a new image with the edges extended by `padding` pixels on each side using the *extend* method described in the Section [Edge Handling](#edge-handling).
@@ -195,7 +200,7 @@ The goal of the project is to measure the sequential execution time of Kernel Im
 
 #### Images
 
-Tests are run on very large images to get more benefits from parallel execution; in fact, parallelization works better if the data is sufficiently large. The selected images can be found in the [input](imgs/input) folder and are called according to their *quality*:
+Tests are run on very large images to get more benefits from parallel execution; in fact, parallelization works better if the data is sufficiently large. The selected images can be found in the [input](images/input) folder and are called according to their *quality*:
 - `4K` if the size is 4000x2000 pixels.
 - `5K` if the size is 5000x3000 pixels.
 - `6K` if the size is 6000x4000 pixels.
@@ -225,199 +230,9 @@ External or background system processes can influence experiments. To get a more
 - Each image is processed `3` times, and the average time is taken. 
 - After processing each image with all kernel types of the same size, the execution is paused (using the *sleep* command) so that other processes can be carried on and thus affect time measurements less. The idle time is `(imageQuality + order / 2) / 2` seconds for each type of kernel used, where `imageQuality` is the high definition number of the image (e.g. it counts 4 seconds for `4K` images).
 
-### Experimental Results
+### Save to File
 
-The following tables summarizes the temporal measurements of convolutions on different images with different kernels, measured in both debug and release mode.
-
-<table>
-  <thead>
-    <tr>
-      <th colspan="3" rowspan="3">Execution Time<br>(Debug mode)</th>
-      <th colspan="12">Image Dimension</th>
-    </tr>
-    <tr>
-      <th colspan="3">4K</th>
-      <th colspan="3">5K</th>
-      <th colspan="3">6K</th>
-      <th colspan="3">7K</th>
-    </tr>
-    <tr>
-      <th>1</th>
-      <th>2</th>
-      <th>3</th>
-      <th>1</th>
-      <th>2</th>
-      <th>3</th>
-      <th>1</th>
-      <th>2</th>
-      <th>3</th>
-      <th>1</th>
-      <th>2</th>
-      <th>3</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td rowspan="9"><strong>Kernel Dimension</strong></td>
-      <td rowspan="4"><strong>Box Blurring</strong></td>
-      <td><strong>7</strong></td>
-      <td>3.82795</td>
-      <td>3.64721</td>
-      <td>3.67625</td>
-      <td>14.3222</td>
-      <td>6.8883</td>
-      <td>16.8814</td>
-      <td>11.0175</td>
-      <td>16.5867</td>
-      <td>23.2189</td>
-      <td>16.0264</td>
-      <td>16.5054</td>
-      <td>16.4069</td>
-    </tr>
-    <tr>
-      <td><strong>13</strong></td>
-      <td>12.1591</td>
-      <td>11.7018</td>
-      <td>11.8204</td>
-      <td>49.7128</td>
-      <td>48.2678</td>
-      <td>56.4534</td>
-      <td>36.1269</td>
-      <td>78.8835</td>
-      <td>61.2037</td>
-      <td>51.5812</td>
-      <td>51.8145</td>
-      <td>51.5229</td>
-    </tr>
-    <tr>
-      <td><strong>19</strong></td>
-      <td>24.3588</td>
-      <td>24.6647</td>
-      <td>36.0659</td>
-      <td>102.098</td>
-      <td>103.386</td>
-      <td>108.489</td>
-      <td>75.0609</td>
-      <td>166.485</td>
-      <td>72.3321</td>
-      <td>106.96</td>
-      <td>107.461</td>
-      <td>107.23</td>
-    </tr>
-    <tr>
-      <td><strong>25</strong></td>
-      <td>42.1691</td>
-      <td>42.3499</td>
-      <td>92.7708</td>
-      <td>124.779</td>
-      <td>155.358</td>
-      <td>190.026</td>
-      <td>192.884</td>
-      <td>289.44</td>
-      <td>125.872</td>
-      <td>183.449</td>
-      <td>183.899</td>
-      <td>183.78</td>
-    </tr>
-  </tbody>
-</table>
-
-<table>
-  <thead>
-    <tr>
-      <th colspan="3" rowspan="3">Execution Time<br>(Release mode)</th>
-      <th colspan="12">Image Dimension</th>
-    </tr>
-    <tr>
-      <th colspan="3">4K</th>
-      <th colspan="3">5K</th>
-      <th colspan="3">6K</th>
-      <th colspan="3">7K</th>
-    </tr>
-    <tr>
-      <th>1</th>
-      <th>2</th>
-      <th>3</th>
-      <th>1</th>
-      <th>2</th>
-      <th>3</th>
-      <th>1</th>
-      <th>2</th>
-      <th>3</th>
-      <th>1</th>
-      <th>2</th>
-      <th>3</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td rowspan="9"><strong>Kernel Dimension</strong></td>
-      <td rowspan="4"><strong>Box Blurring</strong></td>
-      <td><strong>7</strong></td>
-      <td>1.63491</td>
-      <td>1.60292</td>
-      <td>1.59928</td>
-      <td>3.09233</td>
-      <td>2.99461</td>
-      <td>2.9685</td>
-      <td>4.78064</td>
-      <td>4.7717</td>
-      <td>4.74233</td>
-      <td>6.99629</td>
-      <td>6.86251</td>
-      <td>6.9645</td>
-    </tr>
-    <tr>
-      <td><strong>13</strong></td>
-      <td>4.21743</td>
-      <td>4.21682</td>
-      <td>4.2429</td>
-      <td>7.90956</td>
-      <td>7.89317</td>
-      <td>7.86825</td>
-      <td>12.6152</td>
-      <td>12.62</td>
-      <td>12.6199</td>
-      <td>18.4308</td>
-      <td>18.2844</td>
-      <td>18.4075</td>
-    </tr>
-    <tr>
-      <td><strong>19</strong></td>
-      <td>7.93542</td>
-      <td>7.91668</td>
-      <td>7.994</td>
-      <td>14.8512</td>
-      <td>14.8379</td>
-      <td>14.8091</td>
-      <td>23.7447</td>
-      <td>23.713</td>
-      <td>23.7582</td>
-      <td>34.5979</td>
-      <td>34.4332</td>
-      <td>34.4969</td>
-    </tr>
-    <tr>
-      <td><strong>25</strong></td>
-      <td>12.8117</td>
-      <td>12.7387</td>
-      <td>12.9757</td>
-      <td>23.9107</td>
-      <td>23.8816</td>
-      <td>23.8889</td>
-      <td>38.2216</td>
-      <td>38.1825</td>
-      <td>38.2566</td>
-      <td>55.7258</td>
-      <td>55.64</td>
-      <td>55.7154</td>
-    </tr>
-  </tbody>
-</table>
-
-#### Save to File
-
-This project records lots of time measurements (48 experiments, i.e. 3 image types x 4 image sizes x 1 kernel types x 4 kernel sizes), therefore saving data in a textual file is desirable. CVS (*Comma-Separated Values*) files, which can be used to generate diagrams programmatically, can be found in the [data](data) folder. In particular, for each experiment the following fields are recorded:
+This project records lots of time measurements (48 experiments, i.e. 3 image types x 4 image sizes x 1 kernel types x 4 kernel sizes), therefore saving data in a textual file is desirable. CVS (*Comma-Separated Values*) files, which can be used to generate diagrams programmatically, can be found in the `data` folder of each version. In particular, for each experiment the following fields are recorded:
 - Input image name
 - Input image dimensions
 - Kernel type
@@ -437,7 +252,7 @@ The relevant details of the hardware used are:
 
 ### Unit Testing
 
-To ensure that both sequential and parallel versions work, the application code is supported by unit tests. Tests are written using the [GoogleTest](https://github.com/google/googletest "GitHub repository of GoogleTest") framework, configured in the `CMakeLists.txt` located in the [tests](./tests) folder:
+To ensure that both sequential and parallel versions work, the application code is supported by unit tests. Tests are written using the [GoogleTest](https://github.com/google/googletest "GitHub repository of GoogleTest") framework, configured in the `CMakeLists.txt` located in the `tests` folder of each version:
 - entities' tests (**PixelTest**, **ImageTest** and **KernelTest**) are quite simple and only check the constructor or default constructor behaviour.
 
   > :pencil: **Note**: Assertions uses `EXPECT_EQ` if its failure doesn't affect subsequent tests, or `ASSERT_EQ` if its truthfulness is necessary for the next ones.
@@ -478,21 +293,3 @@ In order to verify whether the idea behind the program is correct (or not) and t
 Profiling the main program is not a good idea because there are external components (e.g. timer) that are not of interest; also profiling each experiment singularly is not a good idea because operations are similar. For all those reasons, the `profile.cpp` contains a minimal test case defined by sufficiently large data, i.e. a single convolution of an image 6000x4000 pixels (`6K-1`) with a box blur kernel of order 19.
 
 Profiling requires also to take into account how the application has been compiled: *debug* mode allows a better association between collected metrics and the source code, but the real program is obtained by the optimized *release* mode. Luckily, CMake allows to compile using the `RelWithDebInfo` mode, i.e. a fast enough version which includes debug informations, through the compiler options `-O2 -g -DNDEBUG`.
-
-#### Results
-
-As expected, the profiling shows that more than 50% of the execution is located in the `ImageProcessing::convolution` function, while approximately 25% of CPU work is necessary to pixel retrieval and destruction via the Pixel class. [Fig. 1](#figure-1) shows also the percentage of *retired instructions*. For Pixel's methods this rate is very low, and this contributes to the overhead; in this regard, a better definition or use of the class itself could bring benefits.
-
-<p align="center">
-  <img id="figure-1" src="/../assets/vtune_seq_rel_hs_1ms.png" alt="Screenshot of hotspot profiling results." title="Hotspot results" width="70%"/>
-</p>
-
-Another relevant outcome concerns *memory accesses*: no LLC (*last-level cache*) misses are detected with a CPU sampling interval of only 5ms! This is a positive result, but it must be verified by increasing the sampling rate: in fact, at 1ms the analysis detects more than 1 million LLC misses over 34s of CPU execution. Considering the size of the profiling test is not that little (there are 90 billion stores and 42 billion loads), LLC misses are not a problem for this project. Let's do some calculations:
-- the LLC miss rate over all memory accesses is $1.150.000 / 132·10^9 \approx 8.71·10^{-6} = 0,000871\\%$
-- there are $1.150.000 / 34 \approx 33.823$ misses per second
-- for cache lines of $64 B$, the total traffic is $1.150.000 × 64 B = 73.600.000 B \approx 73.6 MB \sim 70.2 MiB$
-
-This is equal to $\sim 2.0 MiB/s$ of DRAM average traffic due to LLC misses. In the worst case, the latency for each miss is about 300ns, therefore a loss of 0.345s wrt 34s of execution, i.e. about 1% of execution time, is a very low impact.
-
-
-

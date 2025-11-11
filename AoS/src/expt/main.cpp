@@ -53,7 +53,7 @@ int main() {
                 const std::string imageName = std::to_string(imageQuality) + "K-" + std::to_string(imageNum);
 
                 // load img
-                fullPathStream << PROJECT_SOURCE_DIR << "/imgs/input/" << imageName << ".jpg";
+                fullPathStream << IMAGES_INPUT_DIRPATH << imageName << ".jpg";
                 const auto img = imageReader.loadRGBImage(fullPathStream.str());
                 std::cout << "Image " << imageName << " (" << img->getWidth() << "x" << img->getHeight() <<
                     ") loaded from: " << fullPathStream.str() << std::endl;
@@ -92,7 +92,7 @@ int main() {
                             " with an average of " << wall_clock_time_duration.count() / numReps << " seconds [Wall Clock] per repetition." << std::endl;
 
                         // save
-                        fullPathStream << PROJECT_SOURCE_DIR << "/imgs/output/" << imageName <<
+                        fullPathStream << IMAGES_OUTPUT_DIRPATH << imageName <<
                             "_" << kernel->getName() << kernel->getOrder() << ".jpg";
                         imageReader.saveJPGImage(*outputImage, fullPathStream.str());
                         std::cout << "Image " << outputImage->getWidth() << "x" << outputImage->getHeight() <<

@@ -9,7 +9,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC" AND USE_ASAN)
 endif()
 
 include_directories(
-        ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/../include
         ${PROJECT_SOURCE_DIR}/src
 )
 
@@ -44,7 +44,8 @@ target_link_libraries(kip_sequential_main kip_sequential_lib)
 add_executable(kip_sequential_profile src/expt/profile.cpp)
 target_link_libraries(kip_sequential_profile kip_sequential_lib)
 
-add_compile_definitions(PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}")
+add_compile_definitions(IMAGES_INPUT_DIRPATH="${PROJECT_SOURCE_DIR}/../images/input/")
+add_compile_definitions(IMAGES_OUTPUT_DIRPATH="${PROJECT_SOURCE_DIR}/../images/output/")
 add_compile_definitions(CMAKE_BINARY_DIR="${CMAKE_BINARY_DIR}")
 
 enable_testing()

@@ -1,6 +1,6 @@
 ### Project-specific ###
 # Profiler dir
-/profiler_kip_sequential*
+/profiler_kip_sequential
 
 
 ### CMake ###
