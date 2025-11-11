@@ -9,7 +9,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC" AND USE_ASAN)
 endif()
 
 include_directories(
-        ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/../include
         ${PROJECT_SOURCE_DIR}/src
 )
 
