@@ -3,8 +3,8 @@
 This is the *Structure-of-Arrays* version of **kip-sequential**. Alternative versions can be found at:
 
 - [AoS folder](../AoS "AoS version of kip-sequential")
-- [Higher-level-AoS branch](/../edgeHandler_strategy "Alternative and higher-level AoS version of kip-sequential")
-- [Lower-level-AoS branch](/../pixel_vector "Alternative and lower-level AoS version of kip-sequential")
+- [Higher-level-AoS branch](https://github.com/marcopaglio/kip-sequential/tree/edgeHandler_strategy "Alternative and higher-level AoS version of kip-sequential")
+- [Lower-level-AoS branch](https://github.com/marcopaglio/kip-sequential/tree/pixel_vector "Alternative and lower-level AoS version of kip-sequential")
 
 ### Implementation Differences
 
