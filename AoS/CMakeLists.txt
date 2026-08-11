@@ -13,7 +13,7 @@ include_directories(
         ${PROJECT_SOURCE_DIR}/src
 )
 
-add_library(kip_sequential_lib
+add_library(kip_sequential_AoS_lib
         src/image/Pixel.cpp
         src/image/Pixel.h
         src/image/Image.cpp
@@ -30,7 +30,7 @@ add_library(kip_sequential_lib
         src/kernel/KernelFactory.h
 )
 
-add_executable(kip_sequential_main
+add_executable(kip_sequential_AoS_main
         src/expt/main.cpp
         src/expt/timer/Timer.cpp
         src/expt/timer/Timer.h
@@ -39,10 +39,10 @@ add_executable(kip_sequential_main
         src/expt/timer/SteadyTimer.cpp
         src/expt/timer/SteadyTimer.h
 )
-target_link_libraries(kip_sequential_main kip_sequential_lib)
+target_link_libraries(kip_sequential_AoS_main kip_sequential_AoS_lib)
 
-add_executable(kip_sequential_profile src/expt/profile.cpp)
-target_link_libraries(kip_sequential_profile kip_sequential_lib)
+add_executable(kip_sequential_AoS_profile src/expt/profile.cpp)
+target_link_libraries(kip_sequential_AoS_profile kip_sequential_AoS_lib)
 
 add_compile_definitions(IMAGES_INPUT_DIRPATH="${PROJECT_SOURCE_DIR}/../images/input/")
 add_compile_definitions(IMAGES_OUTPUT_DIRPATH="${PROJECT_SOURCE_DIR}/../images/output/")
