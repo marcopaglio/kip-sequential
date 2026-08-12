@@ -30,7 +30,7 @@ int main() {
     constexpr unsigned int minImageQuality = 4;
     constexpr unsigned int maxImageQuality = 7;
     constexpr unsigned int numImageQuality = 3;
-    const std::string cvsName = "kip_sequential.csv";
+    const std::string cvsName = "kip_sequential_SoA.csv";
 
     try {
         // setup timer
