@@ -135,7 +135,7 @@ The profiling shows that the program is heavily dominated by the function **`Ima
 
 The *Memory Access* analysis for the `ImageProcessing::convolution` function shows very favourable behaviour (see [Fig. 3](#figure-3)):
 - The most significant finding is the **Memory Bound of 2.1%**: only a relatively small fraction of the pipeline’s capacity is lost due to memory-related constraints.
-- The number of **loads** and **stores** performed by the function is **22.6 billion** and **900 million**, respectively, which is significantly lower than the figures recorded in the same analysis for the AoS version.
+- The number of **loads** and **stores** performed by the function is **21.5** and **0.4 billion**, respectively, which is significantly lower than the figures recorded in the same analysis for the AoS version.
 - The number of **LLC misses** is approximately **55,000**, which means that the ratio is in the order of a few misses per tens or hundreds of thousands of loads. Consequently, memory accesses are served by the nearest levels of the cache hierarchy, without frequently having to resort to the last level of the cache.
 
 <p align="center">
