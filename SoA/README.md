@@ -118,8 +118,35 @@ The following tables summarizes the temporal measurements of convolutions on dif
   </tbody>
 </table>
 
-SoA undoubtedly makes algorithms much faster.
+Just as in the AoS version, it can be seen that recorded times for inputs of the same size are very similar, indicating that the execution times of the operations are independent of the pixel values.<br/>
+Furthermore, the SoA version undoubtedly makes algorithms much faster: there is a performance gain ranging from at least 2.75x to over 4x.
 
 ### Profiling Results
 
-TODO
+The profiling analysis for the SoA version of the Kernel Image Processing has been maken directly with a sampling rate of 1ms for two reasons:
+1. To compare results with the AoS version.
+2. Cause the execution time is much faster than AoS it would not have made sense to use a coarser sampling rate.
+
+The profiling shows that the program is heavily dominated by the function **`ImageProcessing::convolution`** which is clearly the application’s main hotspot. In the Hotspots analysis, this function accounts for approximately **9.38 s of CPU time**, while the other functions appearing among the top results mainly belong to the JPEG image handling libraries (i.e. `stb_image` and `stb_image_write`) and the Windows runtime libraries, as shown in the [Fig. 2](#figure-2). This highlights that convolution is the main area of focus for optimising the program.
+
+<p align="center">
+  <img id="figure-2" src="/../assets/vtune_seq_rel_hs_1ms_soa.png" alt="Screenshot of hotspot profiling results." title="Hotspot results" width="70%"/>
+</p>
+
+The *Memory Access* analysis for the `ImageProcessing::convolution` function shows very favourable behaviour (see [Fig. 3](#figure-3)):
+- The most significant finding is the **Memory Bound of 2.1%**: only a relatively small fraction of the pipeline’s capacity is lost due to memory-related constraints.
+- The number of **loads** and **stores** performed by the function is **22.6 billion** and **900 million**, respectively, which is significantly lower than the figures recorded in the same analysis for the AoS version.
+- The number of **LLC misses** is approximately **55,000**, which means that the ratio is in the order of a few misses per tens or hundreds of thousands of loads. Consequently, memory accesses are served by the nearest levels of the cache hierarchy, without frequently having to resort to the last level of the cache.
+
+<p align="center">
+  <img id="figure-3" src="/../assets/vtune_seq_rel_macc_1ms_soa.png" alt="Screenshot of memory access profiling results." title="Memory Access results" width="70%"/>
+</p>
+
+Finally, among the results for the *Microarchitecture Exploration* analysis, the **73.2% Retiring** figure stands out: the vast majority of pipeline resources are used to complete instructions that are actually useful, rather than being wasted due to **Front-End Bound** (**3.2%**) or **Bad Speculation** (**2.4%**).<br/>
+The same cannot be said for **Back-End Bound**, which stands at **21.2%**. It represents the main component of pipeline stalls; however:
+- only 2.2% is due to *Memory Bound*;
+- the remaining 19.3% is due to *Core Bound*, potentially attributable to the intrinsic nature of the algorithm.
+
+
+
+
