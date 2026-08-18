@@ -111,7 +111,9 @@ It can be seen that the times recorded for inputs of the same size are very simi
 
 ### Profiling Results
 
-The profiling shows that more than 50% of the execution is located in the `ImageProcessing::convolution` function, while approximately 25% of CPU work is necessary to pixel retrieval and destruction via the Pixel class. [Fig. 1](#figure-1) shows also the percentage of *retired instructions*. For Pixel's methods this rate is very low, and this contributes to the overhead; in this regard, a better definition or use of the class itself could bring benefits.
+The profiling shows that more than 50% of the execution is located in the `ImageProcessing::convolution` function, while approximately 25% of CPU work is necessary to pixel retrieval and destruction via the Pixel class. [Fig. 1](#figure-1) shows also the percentage of *retired instructions*:
+- For `Pixel`'s methods this rate is very low, and this contributes to the overhead; in particular, there are high percentages of **Bad Speculation** (up to **24%**). In this regard, a better definition or more appropriate use of the class itself could bring benefits.
+- For the `ImageProcessing::convolution` function the main issue concerns the **Front-End Bound** (**29.2%**), with particular emphasis on *Front-End Bandwidth*, indicating that there is a relatively heavy instruction flow, attributable to `Pixel` operations and other high-level abstractions.
 
 <p align="center">
   <img id="figure-1" src="/../assets/vtune_seq_rel_hs_1ms.png" alt="Screenshot of hotspot profiling results." title="Hotspot results" width="70%"/>
