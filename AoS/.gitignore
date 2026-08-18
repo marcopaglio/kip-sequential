@@ -1,8 +1,3 @@
-### Project-specific ###
-# Profiler dir
-/profiler_kip_sequential
-
-
 ### CMake ###
 cmake-build-*/
 
