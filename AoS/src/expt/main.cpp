@@ -111,7 +111,7 @@ int main() {
                     }
 
                     // idle time
-                    if (imageQuality != maxImageQuality ||
+                    if (imageName != std::to_string(maxImageQuality) + "K-" + std::to_string(numImageQuality) ||
                         order != KernelInfos::selectedOrders[KernelInfos::numSelectedOrders - 1]) {
                         unsigned int idleTime = KernelInfos::numSelectedTypes * (imageQuality + order / 2) / 2;
                         std::cout << "Take a pause of " << idleTime << " seconds... ";
