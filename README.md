@@ -244,7 +244,13 @@ This project records lots of time measurements (48 experiments, i.e. 3 image typ
 ### Hardware Details
 
 The relevant details of the hardware used are:
-- **CPU**: [Intel Core i7-12650H](https://www.intel.com/content/www/us/en/products/sku/226066/intel-core-i712650h-processor-24m-cache-up-to-4-70-ghz/specifications.html "Specification page for Intel Core i7-12650H"), 2.30 GHz up to 4.70 GHz, 10 cores (6 Performance, 4 Efficient), 16 threads, 24 MB of L3 cache
+- **CPU**: [Intel Core i7-12650H](https://www.intel.com/content/www/us/en/products/sku/226066/intel-core-i712650h-processor-24m-cache-up-to-4-70-ghz/specifications.html "Specification page for Intel Core i7-12650H"):
+    + 2.30 GHz up to 4.70 GHz
+    + 10 cores (6 Performance, 4 Efficient)
+    + 16 threads
+    + 864 KB of L1 cache
+    + 9.5 MB of L2 cache
+    + 24.0 MB of L3 cache
 - **RAM**: DDR5 (4800 MHz), 16 GB
 - **OS**: Windows 11 Home
 
